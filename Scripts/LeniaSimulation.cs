@@ -9,6 +9,7 @@ public partial class LeniaSimulation : Node2D
     [Export] public float KernelRadius = 13.0f;
     [Export] public float GrowthMean = 0.15f;
     [Export] public float GrowthSigma = 0.015f;
+    [Export] public ColorMapper.ColorScheme CurrentColorScheme = ColorMapper.ColorScheme.Heat;
     
     private float[,] currentGrid;
     private float[,] nextGrid;
@@ -73,15 +74,17 @@ public partial class LeniaSimulation : Node2D
         AddChild(displaySprite);
         
         var viewport = GetViewport();
-        var availableWidth = viewport.GetVisibleRect().Size.X - 300; // Account for UI panel
-        var availableHeight = viewport.GetVisibleRect().Size.Y;
+        var screenSize = viewport.GetVisibleRect().Size;
+        
+        var panelWidth = 400;
+        var availableWidth = screenSize.X - panelWidth;
+        var availableHeight = screenSize.Y;
         
         var scale = Mathf.Min(availableWidth / GridWidth, availableHeight / GridHeight);
         displaySprite.Scale = new Vector2(scale, scale);
-        displaySprite.Position = new Vector2(300, 0); // Offset by UI panel width
         
         // Center the simulation in the available space
-        var centeredX = 300 + (availableWidth - GridWidth * scale) / 2;
+        var centeredX = panelWidth + (availableWidth - GridWidth * scale) / 2;
         var centeredY = (availableHeight - GridHeight * scale) / 2;
         displaySprite.Position = new Vector2(centeredX, centeredY);
     }
@@ -160,8 +163,8 @@ public partial class LeniaSimulation : Node2D
         {
             for (int y = 0; y < GridHeight; y++)
             {
-                byte value = (byte)(currentGrid[x, y] * 255);
-                gridImage.SetPixel(x, y, new Color(value / 255.0f, value / 255.0f, value / 255.0f));
+                var color = ColorMapper.MapValue(currentGrid[x, y], CurrentColorScheme);
+                gridImage.SetPixel(x, y, color);
             }
         }
         

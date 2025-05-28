@@ -28,8 +28,8 @@ public partial class LeniaUI : Control
         controlPanel.AnchorTop = 0;
         controlPanel.AnchorRight = 0;
         controlPanel.AnchorBottom = 1;
-        controlPanel.CustomMinimumSize = new Vector2(300, 0);
-        controlPanel.Size = new Vector2(300, GetViewport().GetVisibleRect().Size.Y);
+        controlPanel.CustomMinimumSize = new Vector2(400, 0);
+        controlPanel.Size = new Vector2(400, 0);
         
         var panelStyle = new StyleBoxFlat();
         panelStyle.BgColor = new Color(0.1f, 0.1f, 0.15f, 0.9f);
@@ -39,15 +39,15 @@ public partial class LeniaUI : Control
         AddChild(controlPanel);
         
         container = new VBoxContainer();
-        container.Position = new Vector2(15, 15);
-        container.Size = new Vector2(270, 0);
-        container.AddThemeConstantOverride("separation", 10);
+        container.Position = new Vector2(20, 20);
+        container.Size = new Vector2(360, 0);
+        container.AddThemeConstantOverride("separation", 15);
         controlPanel.AddChild(container);
         
         var titleLabel = new Label();
         titleLabel.Text = "LENIA CONTROLS";
         titleLabel.AddThemeColorOverride("font_color", new Color(0.9f, 0.9f, 1.0f));
-        titleLabel.AddThemeFontSizeOverride("font_size", 18);
+        titleLabel.AddThemeFontSizeOverride("font_size", 24);
         titleLabel.HorizontalAlignment = HorizontalAlignment.Center;
         container.AddChild(titleLabel);
         
@@ -70,10 +70,21 @@ public partial class LeniaUI : Control
         
         container.AddChild(CreateSeparator());
         
+        var visualLabel = new Label();
+        visualLabel.Text = "VISUALS";
+        visualLabel.AddThemeColorOverride("font_color", new Color(0.8f, 0.8f, 0.9f));
+        visualLabel.AddThemeFontSizeOverride("font_size", 18);
+        visualLabel.HorizontalAlignment = HorizontalAlignment.Center;
+        container.AddChild(visualLabel);
+        
+        CreateColorSchemeSelector();
+        
+        container.AddChild(CreateSeparator());
+        
         var patternsLabel = new Label();
         patternsLabel.Text = "PATTERNS";
         patternsLabel.AddThemeColorOverride("font_color", new Color(0.8f, 0.8f, 0.9f));
-        patternsLabel.AddThemeFontSizeOverride("font_size", 14);
+        patternsLabel.AddThemeFontSizeOverride("font_size", 18);
         patternsLabel.HorizontalAlignment = HorizontalAlignment.Center;
         container.AddChild(patternsLabel);
         
@@ -94,7 +105,7 @@ public partial class LeniaUI : Control
         var controlsLabel = new Label();
         controlsLabel.Text = "CONTROLS";
         controlsLabel.AddThemeColorOverride("font_color", new Color(0.8f, 0.8f, 0.9f));
-        controlsLabel.AddThemeFontSizeOverride("font_size", 14);
+        controlsLabel.AddThemeFontSizeOverride("font_size", 18);
         controlsLabel.HorizontalAlignment = HorizontalAlignment.Center;
         container.AddChild(controlsLabel);
         
@@ -126,7 +137,8 @@ public partial class LeniaUI : Control
     {
         var button = new Button();
         button.Text = text;
-        button.CustomMinimumSize = new Vector2(250, 35);
+        button.CustomMinimumSize = new Vector2(340, 45);
+        button.AddThemeFontSizeOverride("font_size", 16);
         
         var buttonStyle = new StyleBoxFlat();
         buttonStyle.BgColor = new Color(0.2f, 0.2f, 0.3f);
@@ -163,13 +175,13 @@ public partial class LeniaUI : Control
         System.Action<float> onChanged)
     {
         var vbox = new VBoxContainer();
-        vbox.AddThemeConstantOverride("separation", 5);
+        vbox.AddThemeConstantOverride("separation", 8);
         container.AddChild(vbox);
         
         var label = new Label();
         label.Text = name;
         label.AddThemeColorOverride("font_color", new Color(0.8f, 0.8f, 0.9f));
-        label.AddThemeFontSizeOverride("font_size", 12);
+        label.AddThemeFontSizeOverride("font_size", 16);
         vbox.AddChild(label);
         
         var hbox = new HBoxContainer();
@@ -180,14 +192,14 @@ public partial class LeniaUI : Control
         slider.MaxValue = max;
         slider.Value = value;
         slider.Step = (max - min) / 100.0f;
-        slider.CustomMinimumSize = new Vector2(180, 20);
+        slider.CustomMinimumSize = new Vector2(240, 30);
         hbox.AddChild(slider);
         
         var valueLabel = new Label();
         valueLabel.Text = value.ToString("F3");
-        valueLabel.CustomMinimumSize = new Vector2(60, 0);
+        valueLabel.CustomMinimumSize = new Vector2(80, 0);
         valueLabel.AddThemeColorOverride("font_color", new Color(0.7f, 0.7f, 0.8f));
-        valueLabel.AddThemeFontSizeOverride("font_size", 11);
+        valueLabel.AddThemeFontSizeOverride("font_size", 14);
         hbox.AddChild(valueLabel);
         
         slider.ValueChanged += (double newValue) => {
@@ -206,6 +218,42 @@ public partial class LeniaUI : Control
     private void OnMenuPressed()
     {
         GetTree().ChangeSceneToFile("res://menu.tscn");
+    }
+    
+    private void CreateColorSchemeSelector()
+    {
+        var vbox = new VBoxContainer();
+        vbox.AddThemeConstantOverride("separation", 8);
+        container.AddChild(vbox);
+        
+        var label = new Label();
+        label.Text = "Color Scheme";
+        label.AddThemeColorOverride("font_color", new Color(0.8f, 0.8f, 0.9f));
+        label.AddThemeFontSizeOverride("font_size", 16);
+        vbox.AddChild(label);
+        
+        var hbox = new HBoxContainer();
+        vbox.AddChild(hbox);
+        
+        var optionButton = new OptionButton();
+        optionButton.CustomMinimumSize = new Vector2(240, 35);
+        optionButton.AddThemeFontSizeOverride("font_size", 14);
+        
+        // Add all color schemes
+        var schemes = System.Enum.GetValues<ColorMapper.ColorScheme>();
+        foreach (var scheme in schemes)
+        {
+            optionButton.AddItem(ColorMapper.GetSchemeName(scheme));
+        }
+        
+        // Set current selection
+        optionButton.Selected = (int)simulation.CurrentColorScheme;
+        
+        optionButton.ItemSelected += (long index) => {
+            simulation.CurrentColorScheme = (ColorMapper.ColorScheme)index;
+        };
+        
+        hbox.AddChild(optionButton);
     }
     
     public override void _Process(double delta)
