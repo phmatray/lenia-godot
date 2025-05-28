@@ -11,7 +11,7 @@ public partial class PopulationGraph : Control
     
     public override void _Ready()
     {
-        CustomMinimumSize = new Vector2(340, 120);
+        CustomMinimumSize = new Vector2(340, 90);
         
         populationLabel = new Label();
         populationLabel.Text = "Population: 0.0%";

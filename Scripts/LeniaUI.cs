@@ -4,6 +4,7 @@ public partial class LeniaUI : Control
 {
     private LeniaSimulation simulation;
     private Panel controlPanel;
+    private ScrollContainer scrollContainer;
     private VBoxContainer container;
     private Label fpsLabel;
     private Button menuButton;
@@ -15,6 +16,15 @@ public partial class LeniaUI : Control
     {
         simulation = GetNode<LeniaSimulation>("../LeniaSimulation");
         SetupUI();
+        GetViewport().SizeChanged += OnViewportSizeChanged;
+    }
+    
+    private void OnViewportSizeChanged()
+    {
+        if (scrollContainer != null)
+        {
+            scrollContainer.Size = new Vector2(380, GetViewport().GetVisibleRect().Size.Y - 20);
+        }
     }
     
     private void SetupUI()
@@ -48,131 +58,103 @@ public partial class LeniaUI : Control
         controlPanel.AddThemeStyleboxOverride("panel", panelStyle);
         AddChild(controlPanel);
         
+        // Create scroll container to handle overflow
+        scrollContainer = new ScrollContainer();
+        scrollContainer.Position = new Vector2(10, 10);
+        scrollContainer.Size = new Vector2(380, GetViewport().GetVisibleRect().Size.Y - 20);
+        scrollContainer.HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled;
+        scrollContainer.VerticalScrollMode = ScrollContainer.ScrollMode.Auto;
+        controlPanel.AddChild(scrollContainer);
+        
         container = new VBoxContainer();
-        container.Position = new Vector2(20, 20);
-        container.Size = new Vector2(360, 0);
-        container.AddThemeConstantOverride("separation", 15);
-        controlPanel.AddChild(container);
+        container.CustomMinimumSize = new Vector2(360, 0);
+        container.AddThemeConstantOverride("separation", 12);
+        scrollContainer.AddChild(container);
         
         var titleLabel = new Label();
         titleLabel.Text = "LENIA CONTROLS";
         titleLabel.AddThemeColorOverride("font_color", new Color(0.9f, 0.9f, 1.0f));
-        titleLabel.AddThemeFontSizeOverride("font_size", 24);
+        titleLabel.AddThemeFontSizeOverride("font_size", 20);
         titleLabel.HorizontalAlignment = HorizontalAlignment.Center;
         container.AddChild(titleLabel);
         
         container.AddChild(CreateSeparator());
         
-        CreateSlider("Delta Time", 0.01f, 0.5f, simulation.DeltaTime, 
+        // Parameters Section
+        var parametersSection = new CollapsibleSection("PARAMETERS", true);
+        CreateSliderInSection(parametersSection.Content, "Delta Time", 0.01f, 0.5f, simulation.DeltaTime, 
             value => simulation.DeltaTime = value);
-        
-        CreateSlider("Kernel Radius", 5.0f, 30.0f, simulation.KernelRadius, 
+        CreateSliderInSection(parametersSection.Content, "Kernel Radius", 5.0f, 30.0f, simulation.KernelRadius, 
             value => {
                 simulation.KernelRadius = value;
                 simulation.CreateKernel();
             });
-        
-        CreateSlider("Growth Mean", 0.0f, 0.3f, simulation.GrowthMean, 
+        CreateSliderInSection(parametersSection.Content, "Growth Mean", 0.0f, 0.3f, simulation.GrowthMean, 
             value => simulation.GrowthMean = value);
-        
-        CreateSlider("Growth Sigma", 0.001f, 0.1f, simulation.GrowthSigma, 
+        CreateSliderInSection(parametersSection.Content, "Growth Sigma", 0.001f, 0.1f, simulation.GrowthSigma, 
             value => simulation.GrowthSigma = value);
+        container.AddChild(parametersSection);
         
-        container.AddChild(CreateSeparator());
+        // Visuals Section
+        var visualsSection = new CollapsibleSection("VISUALS", true);
+        CreateColorSchemeSelectorInSection(visualsSection.Content);
+        CreatePerformanceSelectorInSection(visualsSection.Content);
+        container.AddChild(visualsSection);
         
-        var visualLabel = new Label();
-        visualLabel.Text = "VISUALS";
-        visualLabel.AddThemeColorOverride("font_color", new Color(0.8f, 0.8f, 0.9f));
-        visualLabel.AddThemeFontSizeOverride("font_size", 18);
-        visualLabel.HorizontalAlignment = HorizontalAlignment.Center;
-        container.AddChild(visualLabel);
-        
-        CreateColorSchemeSelector();
-        
-        CreatePerformanceSelector();
-        
-        container.AddChild(CreateSeparator());
-        
-        var interactionLabel = new Label();
-        interactionLabel.Text = "INTERACTION";
-        interactionLabel.AddThemeColorOverride("font_color", new Color(0.8f, 0.8f, 0.9f));
-        interactionLabel.AddThemeFontSizeOverride("font_size", 18);
-        interactionLabel.HorizontalAlignment = HorizontalAlignment.Center;
-        container.AddChild(interactionLabel);
-        
-        CreateSlider("Brush Size", 1.0f, 10.0f, simulation.BrushSize, 
+        // Interaction Section
+        var interactionSection = new CollapsibleSection("INTERACTION", true);
+        CreateSliderInSection(interactionSection.Content, "Brush Size", 1.0f, 10.0f, simulation.BrushSize, 
             value => simulation.BrushSize = value);
-        
-        CreateSlider("Brush Intensity", 0.1f, 3.0f, simulation.BrushIntensity, 
+        CreateSliderInSection(interactionSection.Content, "Brush Intensity", 0.1f, 3.0f, simulation.BrushIntensity, 
             value => simulation.BrushIntensity = value);
-        
-        CreateSlider("Simulation Speed", 0.0f, 3.0f, simulation.SimulationSpeed, 
+        CreateSliderInSection(interactionSection.Content, "Simulation Speed", 0.0f, 3.0f, simulation.SimulationSpeed, 
             value => simulation.SimulationSpeed = value);
         
-        // Add mouse instructions
         var instructionText = new RichTextLabel();
-        instructionText.CustomMinimumSize = new Vector2(340, 80);
+        instructionText.CustomMinimumSize = new Vector2(320, 50);
         instructionText.BbcodeEnabled = true;
-        instructionText.AddThemeFontSizeOverride("normal_font_size", 12);
-        instructionText.Text = "[center][color=#9999ff][b]Mouse Controls:[/b][/color]\n[color=#aaaacc]• Left Click: Paint organisms\n• Right Click: Erase\n• Drag to paint continuously[/color][/center]";
-        container.AddChild(instructionText);
+        instructionText.AddThemeFontSizeOverride("normal_font_size", 10);
+        instructionText.Text = "[center][color=#9999ff][b]Mouse:[/b][/color] [color=#aaaacc]Left: Paint • Right: Erase[/color][/center]";
+        interactionSection.Content.AddChild(instructionText);
+        container.AddChild(interactionSection);
         
-        container.AddChild(CreateSeparator());
-        
-        var patternsLabel = new Label();
-        patternsLabel.Text = "PATTERNS";
-        patternsLabel.AddThemeColorOverride("font_color", new Color(0.8f, 0.8f, 0.9f));
-        patternsLabel.AddThemeFontSizeOverride("font_size", 18);
-        patternsLabel.HorizontalAlignment = HorizontalAlignment.Center;
-        container.AddChild(patternsLabel);
-        
+        // Patterns Section
+        var patternsSection = new CollapsibleSection("PATTERNS", false);
         var resetButton = CreateStyledButton("Reset Pattern");
         resetButton.Pressed += () => simulation.InitializePattern();
-        container.AddChild(resetButton);
+        patternsSection.Content.AddChild(resetButton);
         
         var randomButton = CreateStyledButton("Random Pattern");
         randomButton.Pressed += () => simulation.RandomPattern();
-        container.AddChild(randomButton);
+        patternsSection.Content.AddChild(randomButton);
         
         var orbiumButton = CreateStyledButton("Orbium Pattern");
         orbiumButton.Pressed += () => simulation.OrbiumPattern();
-        container.AddChild(orbiumButton);
+        patternsSection.Content.AddChild(orbiumButton);
+        container.AddChild(patternsSection);
         
-        container.AddChild(CreateSeparator());
-        
-        var controlsLabel = new Label();
-        controlsLabel.Text = "CONTROLS";
-        controlsLabel.AddThemeColorOverride("font_color", new Color(0.8f, 0.8f, 0.9f));
-        controlsLabel.AddThemeFontSizeOverride("font_size", 18);
-        controlsLabel.HorizontalAlignment = HorizontalAlignment.Center;
-        container.AddChild(controlsLabel);
-        
+        // Controls Section
+        var controlsSection = new CollapsibleSection("CONTROLS", true);
         pauseButton = CreateStyledButton("Pause");
         pauseButton.Pressed += OnPausePressed;
-        container.AddChild(pauseButton);
+        controlsSection.Content.AddChild(pauseButton);
         
         menuButton = CreateStyledButton("Back to Menu");
         menuButton.Pressed += OnMenuPressed;
-        container.AddChild(menuButton);
+        controlsSection.Content.AddChild(menuButton);
+        container.AddChild(controlsSection);
         
-        container.AddChild(CreateSeparator());
-        
-        var statsLabel = new Label();
-        statsLabel.Text = "STATISTICS";
-        statsLabel.AddThemeColorOverride("font_color", new Color(0.8f, 0.8f, 0.9f));
-        statsLabel.AddThemeFontSizeOverride("font_size", 18);
-        statsLabel.HorizontalAlignment = HorizontalAlignment.Center;
-        container.AddChild(statsLabel);
-        
-        // Add population graph
+        // Statistics Section
+        var statsSection = new CollapsibleSection("STATISTICS", false);
         populationGraph = new PopulationGraph();
-        container.AddChild(populationGraph);
+        statsSection.Content.AddChild(populationGraph);
         
         fpsLabel = new Label();
         fpsLabel.Text = "FPS: 0";
         fpsLabel.AddThemeColorOverride("font_color", new Color(0.7f, 0.7f, 0.8f));
         fpsLabel.HorizontalAlignment = HorizontalAlignment.Center;
-        container.AddChild(fpsLabel);
+        statsSection.Content.AddChild(fpsLabel);
+        container.AddChild(statsSection);
     }
     
     private HSeparator CreateSeparator()
@@ -187,8 +169,8 @@ public partial class LeniaUI : Control
     {
         var button = new Button();
         button.Text = text;
-        button.CustomMinimumSize = new Vector2(340, 45);
-        button.AddThemeFontSizeOverride("font_size", 16);
+        button.CustomMinimumSize = new Vector2(340, 38);
+        button.AddThemeFontSizeOverride("font_size", 14);
         
         var buttonStyle = new StyleBoxFlat();
         buttonStyle.BgColor = new Color(0.15f, 0.2f, 0.35f);
@@ -263,6 +245,43 @@ public partial class LeniaUI : Control
         valueLabel.CustomMinimumSize = new Vector2(80, 0);
         valueLabel.AddThemeColorOverride("font_color", new Color(0.7f, 0.7f, 0.8f));
         valueLabel.AddThemeFontSizeOverride("font_size", 14);
+        hbox.AddChild(valueLabel);
+        
+        slider.ValueChanged += (double newValue) => {
+            onChanged((float)newValue);
+            valueLabel.Text = newValue.ToString("F3");
+        };
+    }
+    
+    private void CreateSliderInSection(VBoxContainer sectionContainer, string name, float min, float max, float value, 
+        System.Action<float> onChanged)
+    {
+        var vbox = new VBoxContainer();
+        vbox.AddThemeConstantOverride("separation", 5);
+        sectionContainer.AddChild(vbox);
+        
+        var label = new Label();
+        label.Text = name;
+        label.AddThemeColorOverride("font_color", new Color(0.8f, 0.8f, 0.9f));
+        label.AddThemeFontSizeOverride("font_size", 13);
+        vbox.AddChild(label);
+        
+        var hbox = new HBoxContainer();
+        vbox.AddChild(hbox);
+        
+        var slider = new HSlider();
+        slider.MinValue = min;
+        slider.MaxValue = max;
+        slider.Value = value;
+        slider.Step = (max - min) / 100.0f;
+        slider.CustomMinimumSize = new Vector2(200, 25);
+        hbox.AddChild(slider);
+        
+        var valueLabel = new Label();
+        valueLabel.Text = value.ToString("F3");
+        valueLabel.CustomMinimumSize = new Vector2(60, 0);
+        valueLabel.AddThemeColorOverride("font_color", new Color(0.7f, 0.7f, 0.8f));
+        valueLabel.AddThemeFontSizeOverride("font_size", 12);
         hbox.AddChild(valueLabel);
         
         slider.ValueChanged += (double newValue) => {
@@ -366,6 +385,79 @@ public partial class LeniaUI : Control
         };
         
         hbox.AddChild(optionButton);
+    }
+    
+    private void CreateColorSchemeSelectorInSection(VBoxContainer sectionContainer)
+    {
+        var vbox = new VBoxContainer();
+        vbox.AddThemeConstantOverride("separation", 5);
+        sectionContainer.AddChild(vbox);
+        
+        var label = new Label();
+        label.Text = "Color Scheme";
+        label.AddThemeColorOverride("font_color", new Color(0.8f, 0.8f, 0.9f));
+        label.AddThemeFontSizeOverride("font_size", 13);
+        vbox.AddChild(label);
+        
+        var optionButton = new OptionButton();
+        optionButton.CustomMinimumSize = new Vector2(300, 30);
+        optionButton.AddThemeFontSizeOverride("font_size", 12);
+        
+        var schemes = System.Enum.GetValues<ColorMapper.ColorScheme>();
+        foreach (var scheme in schemes)
+        {
+            optionButton.AddItem(ColorMapper.GetSchemeName(scheme));
+        }
+        
+        optionButton.Selected = (int)simulation.CurrentColorScheme;
+        optionButton.ItemSelected += (long index) => {
+            simulation.CurrentColorScheme = (ColorMapper.ColorScheme)index;
+        };
+        
+        vbox.AddChild(optionButton);
+    }
+    
+    private void CreatePerformanceSelectorInSection(VBoxContainer sectionContainer)
+    {
+        var vbox = new VBoxContainer();
+        vbox.AddThemeConstantOverride("separation", 5);
+        sectionContainer.AddChild(vbox);
+        
+        var label = new Label();
+        label.Text = "Performance Mode";
+        label.AddThemeColorOverride("font_color", new Color(0.8f, 0.8f, 0.9f));
+        label.AddThemeFontSizeOverride("font_size", 13);
+        vbox.AddChild(label);
+        
+        var optionButton = new OptionButton();
+        optionButton.CustomMinimumSize = new Vector2(300, 30);
+        optionButton.AddThemeFontSizeOverride("font_size", 12);
+        
+        optionButton.AddItem("Fast (128x128)");
+        optionButton.AddItem("Balanced (192x192)");
+        optionButton.AddItem("Quality (256x256)");
+        
+        optionButton.Selected = 0;
+        optionButton.ItemSelected += (long index) => {
+            switch (index)
+            {
+                case 0:
+                    simulation.GridWidth = 128;
+                    simulation.GridHeight = 128;
+                    break;
+                case 1:
+                    simulation.GridWidth = 192;
+                    simulation.GridHeight = 192;
+                    break;
+                case 2:
+                    simulation.GridWidth = 256;
+                    simulation.GridHeight = 256;
+                    break;
+            }
+            simulation._Ready();
+        };
+        
+        vbox.AddChild(optionButton);
     }
     
     public override void _Process(double delta)
