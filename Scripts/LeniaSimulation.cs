@@ -11,6 +11,9 @@ public partial class LeniaSimulation : Node2D
     [Export] public float GrowthMean = 0.15f;
     [Export] public float GrowthSigma = 0.015f;
     [Export] public ColorMapper.ColorScheme CurrentColorScheme = ColorMapper.ColorScheme.Heat;
+    [Export] public float BrushSize = 3.0f;
+    [Export] public float BrushIntensity = 1.0f;
+    [Export] public float SimulationSpeed = 1.0f;
     
     private float[,] currentGrid;
     private float[,] nextGrid;
@@ -20,6 +23,9 @@ public partial class LeniaSimulation : Node2D
     private ImageTexture gridTexture;
     private Sprite2D displaySprite;
     private byte[] pixelData;
+    private bool isMousePressed = false;
+    private Vector2 simulationOffset;
+    private Vector2 simulationScale;
     
     public override void _Ready()
     {
@@ -99,6 +105,10 @@ public partial class LeniaSimulation : Node2D
         var centeredX = panelWidth + (availableWidth - GridWidth * scale) / 2;
         var centeredY = (availableHeight - GridHeight * scale) / 2;
         displaySprite.Position = new Vector2(centeredX, centeredY);
+        
+        // Store for mouse interaction
+        simulationOffset = displaySprite.Position;
+        simulationScale = displaySprite.Scale;
     }
     
     public void InitializePattern()
@@ -129,8 +139,62 @@ public partial class LeniaSimulation : Node2D
     
     public override void _Process(double delta)
     {
-        UpdateSimulation();
+        // Apply simulation speed multiplier
+        if (SimulationSpeed > 0)
+        {
+            UpdateSimulation();
+        }
         UpdateDisplay();
+        HandleMouseInput();
+    }
+    
+    private void HandleMouseInput()
+    {
+        if (Input.IsActionPressed("ui_click") || Input.IsMouseButtonPressed(MouseButton.Left))
+        {
+            var mousePos = GetGlobalMousePosition();
+            PaintAtPosition(mousePos, BrushIntensity);
+        }
+        else if (Input.IsMouseButtonPressed(MouseButton.Right))
+        {
+            var mousePos = GetGlobalMousePosition();
+            PaintAtPosition(mousePos, -BrushIntensity); // Erase
+        }
+    }
+    
+    private void PaintAtPosition(Vector2 screenPos, float intensity)
+    {
+        // Convert screen position to grid coordinates
+        var localPos = screenPos - simulationOffset;
+        var gridX = (int)(localPos.X / simulationScale.X);
+        var gridY = (int)(localPos.Y / simulationScale.Y);
+        
+        // Paint with brush
+        PaintBrush(gridX, gridY, BrushSize, intensity);
+    }
+    
+    private void PaintBrush(int centerX, int centerY, float radius, float intensity)
+    {
+        int intRadius = (int)radius;
+        for (int dx = -intRadius; dx <= intRadius; dx++)
+        {
+            for (int dy = -intRadius; dy <= intRadius; dy++)
+            {
+                int x = centerX + dx;
+                int y = centerY + dy;
+                
+                if (x >= 0 && x < GridWidth && y >= 0 && y < GridHeight)
+                {
+                    float distance = Mathf.Sqrt(dx * dx + dy * dy);
+                    if (distance <= radius)
+                    {
+                        float falloff = 1.0f - (distance / radius);
+                        float paintAmount = intensity * falloff * 0.1f; // Gentle painting
+                        currentGrid[x, y] = Mathf.Clamp(currentGrid[x, y] + paintAmount, 0.0f, 1.0f);
+                    }
+                }
+            }
+        }
     }
     
     private void UpdateSimulation()
@@ -244,5 +308,10 @@ public partial class LeniaSimulation : Node2D
                 }
             }
         }
+    }
+    
+    public float[,] GetCurrentGrid()
+    {
+        return currentGrid;
     }
 }

@@ -9,6 +9,7 @@ public partial class LeniaUI : Control
     private Button menuButton;
     private Button pauseButton;
     private bool isPaused = false;
+    private PopulationGraph populationGraph;
     
     public override void _Ready()
     {
@@ -23,6 +24,10 @@ public partial class LeniaUI : Control
         AnchorRight = 1;
         AnchorBottom = 1;
         
+        // Add animated background
+        var animatedBg = new AnimatedBackground();
+        AddChild(animatedBg);
+        
         controlPanel = new Panel();
         controlPanel.AnchorLeft = 0;
         controlPanel.AnchorTop = 0;
@@ -32,9 +37,14 @@ public partial class LeniaUI : Control
         controlPanel.Size = new Vector2(400, 0);
         
         var panelStyle = new StyleBoxFlat();
-        panelStyle.BgColor = new Color(0.1f, 0.1f, 0.15f, 0.9f);
-        panelStyle.BorderWidthRight = 2;
-        panelStyle.BorderColor = new Color(0.3f, 0.3f, 0.4f);
+        panelStyle.BgColor = new Color(0.08f, 0.1f, 0.18f, 0.95f);
+        panelStyle.BorderWidthRight = 3;
+        panelStyle.BorderColor = new Color(0.2f, 0.4f, 0.8f, 0.6f);
+        panelStyle.CornerRadiusTopRight = 10;
+        panelStyle.CornerRadiusBottomRight = 10;
+        panelStyle.ShadowColor = new Color(0.0f, 0.0f, 0.0f, 0.5f);
+        panelStyle.ShadowSize = 8;
+        panelStyle.ShadowOffset = new Vector2(2, 2);
         controlPanel.AddThemeStyleboxOverride("panel", panelStyle);
         AddChild(controlPanel);
         
@@ -83,6 +93,32 @@ public partial class LeniaUI : Control
         
         container.AddChild(CreateSeparator());
         
+        var interactionLabel = new Label();
+        interactionLabel.Text = "INTERACTION";
+        interactionLabel.AddThemeColorOverride("font_color", new Color(0.8f, 0.8f, 0.9f));
+        interactionLabel.AddThemeFontSizeOverride("font_size", 18);
+        interactionLabel.HorizontalAlignment = HorizontalAlignment.Center;
+        container.AddChild(interactionLabel);
+        
+        CreateSlider("Brush Size", 1.0f, 10.0f, simulation.BrushSize, 
+            value => simulation.BrushSize = value);
+        
+        CreateSlider("Brush Intensity", 0.1f, 3.0f, simulation.BrushIntensity, 
+            value => simulation.BrushIntensity = value);
+        
+        CreateSlider("Simulation Speed", 0.0f, 3.0f, simulation.SimulationSpeed, 
+            value => simulation.SimulationSpeed = value);
+        
+        // Add mouse instructions
+        var instructionText = new RichTextLabel();
+        instructionText.CustomMinimumSize = new Vector2(340, 80);
+        instructionText.BbcodeEnabled = true;
+        instructionText.AddThemeFontSizeOverride("normal_font_size", 12);
+        instructionText.Text = "[center][color=#9999ff][b]Mouse Controls:[/b][/color]\n[color=#aaaacc]• Left Click: Paint organisms\n• Right Click: Erase\n• Drag to paint continuously[/color][/center]";
+        container.AddChild(instructionText);
+        
+        container.AddChild(CreateSeparator());
+        
         var patternsLabel = new Label();
         patternsLabel.Text = "PATTERNS";
         patternsLabel.AddThemeColorOverride("font_color", new Color(0.8f, 0.8f, 0.9f));
@@ -121,6 +157,17 @@ public partial class LeniaUI : Control
         
         container.AddChild(CreateSeparator());
         
+        var statsLabel = new Label();
+        statsLabel.Text = "STATISTICS";
+        statsLabel.AddThemeColorOverride("font_color", new Color(0.8f, 0.8f, 0.9f));
+        statsLabel.AddThemeFontSizeOverride("font_size", 18);
+        statsLabel.HorizontalAlignment = HorizontalAlignment.Center;
+        container.AddChild(statsLabel);
+        
+        // Add population graph
+        populationGraph = new PopulationGraph();
+        container.AddChild(populationGraph);
+        
         fpsLabel = new Label();
         fpsLabel.Text = "FPS: 0";
         fpsLabel.AddThemeColorOverride("font_color", new Color(0.7f, 0.7f, 0.8f));
@@ -131,7 +178,8 @@ public partial class LeniaUI : Control
     private HSeparator CreateSeparator()
     {
         var separator = new HSeparator();
-        separator.AddThemeColorOverride("separator", new Color(0.3f, 0.3f, 0.4f));
+        separator.AddThemeColorOverride("separator", new Color(0.2f, 0.4f, 0.8f, 0.5f));
+        separator.CustomMinimumSize = new Vector2(0, 4);
         return separator;
     }
     
@@ -143,30 +191,43 @@ public partial class LeniaUI : Control
         button.AddThemeFontSizeOverride("font_size", 16);
         
         var buttonStyle = new StyleBoxFlat();
-        buttonStyle.BgColor = new Color(0.2f, 0.2f, 0.3f);
-        buttonStyle.BorderWidthTop = 1;
-        buttonStyle.BorderWidthBottom = 1;
-        buttonStyle.BorderWidthLeft = 1;
-        buttonStyle.BorderWidthRight = 1;
-        buttonStyle.BorderColor = new Color(0.4f, 0.4f, 0.5f);
-        buttonStyle.CornerRadiusTopLeft = 4;
-        buttonStyle.CornerRadiusTopRight = 4;
-        buttonStyle.CornerRadiusBottomLeft = 4;
-        buttonStyle.CornerRadiusBottomRight = 4;
+        buttonStyle.BgColor = new Color(0.15f, 0.2f, 0.35f);
+        buttonStyle.BorderWidthTop = 2;
+        buttonStyle.BorderWidthBottom = 2;
+        buttonStyle.BorderWidthLeft = 2;
+        buttonStyle.BorderWidthRight = 2;
+        buttonStyle.BorderColor = new Color(0.3f, 0.5f, 0.8f);
+        buttonStyle.CornerRadiusTopLeft = 8;
+        buttonStyle.CornerRadiusTopRight = 8;
+        buttonStyle.CornerRadiusBottomLeft = 8;
+        buttonStyle.CornerRadiusBottomRight = 8;
         button.AddThemeStyleboxOverride("normal", buttonStyle);
         
         var hoverStyle = new StyleBoxFlat();
-        hoverStyle.BgColor = new Color(0.3f, 0.3f, 0.4f);
-        hoverStyle.BorderWidthTop = 1;
-        hoverStyle.BorderWidthBottom = 1;
-        hoverStyle.BorderWidthLeft = 1;
-        hoverStyle.BorderWidthRight = 1;
-        hoverStyle.BorderColor = new Color(0.5f, 0.5f, 0.6f);
-        hoverStyle.CornerRadiusTopLeft = 4;
-        hoverStyle.CornerRadiusTopRight = 4;
-        hoverStyle.CornerRadiusBottomLeft = 4;
-        hoverStyle.CornerRadiusBottomRight = 4;
+        hoverStyle.BgColor = new Color(0.2f, 0.3f, 0.5f);
+        hoverStyle.BorderWidthTop = 2;
+        hoverStyle.BorderWidthBottom = 2;
+        hoverStyle.BorderWidthLeft = 2;
+        hoverStyle.BorderWidthRight = 2;
+        hoverStyle.BorderColor = new Color(0.4f, 0.6f, 0.9f);
+        hoverStyle.CornerRadiusTopLeft = 8;
+        hoverStyle.CornerRadiusTopRight = 8;
+        hoverStyle.CornerRadiusBottomLeft = 8;
+        hoverStyle.CornerRadiusBottomRight = 8;
         button.AddThemeStyleboxOverride("hover", hoverStyle);
+        
+        var pressedStyle = new StyleBoxFlat();
+        pressedStyle.BgColor = new Color(0.1f, 0.15f, 0.25f);
+        pressedStyle.BorderWidthTop = 2;
+        pressedStyle.BorderWidthBottom = 2;
+        pressedStyle.BorderWidthLeft = 2;
+        pressedStyle.BorderWidthRight = 2;
+        pressedStyle.BorderColor = new Color(0.5f, 0.7f, 1.0f);
+        pressedStyle.CornerRadiusTopLeft = 8;
+        pressedStyle.CornerRadiusTopRight = 8;
+        pressedStyle.CornerRadiusBottomLeft = 8;
+        pressedStyle.CornerRadiusBottomRight = 8;
+        button.AddThemeStyleboxOverride("pressed", pressedStyle);
         
         button.AddThemeColorOverride("font_color", new Color(0.9f, 0.9f, 1.0f));
         
@@ -310,5 +371,11 @@ public partial class LeniaUI : Control
     public override void _Process(double delta)
     {
         fpsLabel.Text = $"FPS: {Engine.GetFramesPerSecond()}";
+        
+        // Update population graph every few frames for performance
+        if (Engine.GetProcessFrames() % 10 == 0)
+        {
+            populationGraph?.UpdatePopulation(simulation.GetCurrentGrid(), simulation.GridWidth, simulation.GridHeight);
+        }
     }
 }
