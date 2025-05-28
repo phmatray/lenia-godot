@@ -79,6 +79,8 @@ public partial class LeniaUI : Control
         
         CreateColorSchemeSelector();
         
+        CreatePerformanceSelector();
+        
         container.AddChild(CreateSeparator());
         
         var patternsLabel = new Label();
@@ -251,6 +253,55 @@ public partial class LeniaUI : Control
         
         optionButton.ItemSelected += (long index) => {
             simulation.CurrentColorScheme = (ColorMapper.ColorScheme)index;
+        };
+        
+        hbox.AddChild(optionButton);
+    }
+    
+    private void CreatePerformanceSelector()
+    {
+        var vbox = new VBoxContainer();
+        vbox.AddThemeConstantOverride("separation", 8);
+        container.AddChild(vbox);
+        
+        var label = new Label();
+        label.Text = "Performance Mode";
+        label.AddThemeColorOverride("font_color", new Color(0.8f, 0.8f, 0.9f));
+        label.AddThemeFontSizeOverride("font_size", 16);
+        vbox.AddChild(label);
+        
+        var hbox = new HBoxContainer();
+        vbox.AddChild(hbox);
+        
+        var optionButton = new OptionButton();
+        optionButton.CustomMinimumSize = new Vector2(240, 35);
+        optionButton.AddThemeFontSizeOverride("font_size", 14);
+        
+        optionButton.AddItem("Fast (128x128)");
+        optionButton.AddItem("Balanced (192x192)");
+        optionButton.AddItem("Quality (256x256)");
+        
+        // Default to Fast mode
+        optionButton.Selected = 0;
+        
+        optionButton.ItemSelected += (long index) => {
+            switch (index)
+            {
+                case 0: // Fast
+                    simulation.GridWidth = 128;
+                    simulation.GridHeight = 128;
+                    break;
+                case 1: // Balanced
+                    simulation.GridWidth = 192;
+                    simulation.GridHeight = 192;
+                    break;
+                case 2: // Quality
+                    simulation.GridWidth = 256;
+                    simulation.GridHeight = 256;
+                    break;
+            }
+            // Reinitialize simulation with new size
+            simulation._Ready();
         };
         
         hbox.AddChild(optionButton);

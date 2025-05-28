@@ -1,10 +1,11 @@
 using Godot;
 using System;
+using System.Threading.Tasks;
 
 public partial class LeniaSimulation : Node2D
 {
-    [Export] public int GridWidth = 256;
-    [Export] public int GridHeight = 256;
+    [Export] public int GridWidth = 128;
+    [Export] public int GridHeight = 128;
     [Export] public float DeltaTime = 0.1f;
     [Export] public float KernelRadius = 13.0f;
     [Export] public float GrowthMean = 0.15f;
@@ -14,9 +15,11 @@ public partial class LeniaSimulation : Node2D
     private float[,] currentGrid;
     private float[,] nextGrid;
     private float[,] kernel;
+    private (int x, int y, float weight)[] kernelOffsets;
     private Image gridImage;
     private ImageTexture gridTexture;
     private Sprite2D displaySprite;
+    private byte[] pixelData;
     
     public override void _Ready()
     {
@@ -30,12 +33,14 @@ public partial class LeniaSimulation : Node2D
     {
         currentGrid = new float[GridWidth, GridHeight];
         nextGrid = new float[GridWidth, GridHeight];
+        pixelData = new byte[GridWidth * GridHeight * 3]; // RGB format
     }
     
     public void CreateKernel()
     {
         int kernelSize = (int)(KernelRadius * 2) + 1;
         kernel = new float[kernelSize, kernelSize];
+        var offsetsList = new System.Collections.Generic.List<(int, int, float)>();
         float kernelSum = 0;
         
         for (int i = 0; i < kernelSize; i++)
@@ -54,13 +59,20 @@ public partial class LeniaSimulation : Node2D
             }
         }
         
+        // Normalize and create offset cache
         for (int i = 0; i < kernelSize; i++)
         {
             for (int j = 0; j < kernelSize; j++)
             {
                 kernel[i, j] /= kernelSum;
+                if (kernel[i, j] > 0.001f) // Only cache significant weights
+                {
+                    offsetsList.Add((i - (int)KernelRadius, j - (int)KernelRadius, kernel[i, j]));
+                }
             }
         }
+        
+        kernelOffsets = offsetsList.ToArray();
     }
     
     private void SetupDisplay()
@@ -123,33 +135,28 @@ public partial class LeniaSimulation : Node2D
     
     private void UpdateSimulation()
     {
-        int kernelRadius = (int)KernelRadius;
-        
-        for (int x = 0; x < GridWidth; x++)
+        // Use parallel processing for better performance
+        Parallel.For(0, GridWidth, x =>
         {
             for (int y = 0; y < GridHeight; y++)
             {
                 float convolution = 0;
                 
-                for (int kx = -kernelRadius; kx <= kernelRadius; kx++)
+                // Use cached kernel offsets (much faster)
+                foreach (var (ox, oy, weight) in kernelOffsets)
                 {
-                    for (int ky = -kernelRadius; ky <= kernelRadius; ky++)
-                    {
-                        int nx = (x + kx + GridWidth) % GridWidth;
-                        int ny = (y + ky + GridHeight) % GridHeight;
-                        
-                        convolution += currentGrid[nx, ny] * kernel[kx + kernelRadius, ky + kernelRadius];
-                    }
+                    int nx = (x + ox + GridWidth) % GridWidth;
+                    int ny = (y + oy + GridHeight) % GridHeight;
+                    convolution += currentGrid[nx, ny] * weight;
                 }
                 
                 float growth = GrowthFunction(convolution);
                 nextGrid[x, y] = Mathf.Clamp(currentGrid[x, y] + DeltaTime * growth, 0.0f, 1.0f);
             }
-        }
+        });
         
-        var temp = currentGrid;
-        currentGrid = nextGrid;
-        nextGrid = temp;
+        // Swap grids efficiently
+        (currentGrid, nextGrid) = (nextGrid, currentGrid);
     }
     
     private float GrowthFunction(float u)
@@ -159,15 +166,21 @@ public partial class LeniaSimulation : Node2D
     
     private void UpdateDisplay()
     {
-        for (int x = 0; x < GridWidth; x++)
+        // Update pixel data array with parallel processing
+        Parallel.For(0, GridHeight, y =>
         {
-            for (int y = 0; y < GridHeight; y++)
+            for (int x = 0; x < GridWidth; x++)
             {
                 var color = ColorMapper.MapValue(currentGrid[x, y], CurrentColorScheme);
-                gridImage.SetPixel(x, y, color);
+                int index = (y * GridWidth + x) * 3;
+                pixelData[index] = (byte)(color.R * 255);     // Red
+                pixelData[index + 1] = (byte)(color.G * 255); // Green
+                pixelData[index + 2] = (byte)(color.B * 255); // Blue
             }
-        }
+        });
         
+        // Create new image from byte array (much faster than individual SetPixel calls)
+        gridImage = Image.CreateFromData(GridWidth, GridHeight, false, Image.Format.Rgb8, pixelData);
         gridTexture.Update(gridImage);
     }
     
