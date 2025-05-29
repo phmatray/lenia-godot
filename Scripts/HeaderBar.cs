@@ -6,6 +6,8 @@ public partial class HeaderBar : Panel
     private Button playPauseButton;
     private Button stepButton;
     private Button resetButton;
+    private Button screenshotButton;
+    private Button galleryButton;
     private HSlider speedSlider;
     private Label speedLabel;
     private Label fpsLabel;
@@ -27,6 +29,8 @@ public partial class HeaderBar : Panel
         playPauseButton = GetNode<Button>("HBoxContainer/PlayPauseButton");
         stepButton = GetNode<Button>("HBoxContainer/StepButton");
         resetButton = GetNode<Button>("HBoxContainer/ResetButton");
+        screenshotButton = GetNode<Button>("HBoxContainer/ScreenshotButton");
+        galleryButton = GetNode<Button>("HBoxContainer/GalleryButton");
         speedSlider = GetNode<HSlider>("HBoxContainer/SpeedContainer/SpeedSlider");
         speedLabel = GetNode<Label>("HBoxContainer/SpeedContainer/SpeedValue");
         fpsLabel = GetNode<Label>("HBoxContainer/FPSLabel");
@@ -42,6 +46,8 @@ public partial class HeaderBar : Panel
         StyleButton(playPauseButton);
         StyleButton(stepButton);
         StyleButton(resetButton);
+        StyleButton(screenshotButton);
+        StyleButton(galleryButton);
     }
     
     private void SetupHeaderBar()
@@ -50,11 +56,17 @@ public partial class HeaderBar : Panel
         playPauseButton.Pressed += OnPlayPausePressed;
         stepButton.Pressed += OnStepPressed;
         resetButton.Pressed += OnResetPressed;
+        screenshotButton.Pressed += OnScreenshotPressed;
+        galleryButton.Pressed += OnGalleryPressed;
         speedSlider.ValueChanged += OnSpeedChanged;
         
         // Set initial values
         speedSlider.Value = simulation.SimulationSpeed;
         speedLabel.Text = $"{simulation.SimulationSpeed:F1}x";
+        
+        // Set initial play/pause state based on simulation
+        isPaused = simulation.IsPaused;
+        UpdatePlayPauseButton();
     }
     
     private void StyleButton(Button button)
@@ -80,6 +92,11 @@ public partial class HeaderBar : Panel
     {
         isPaused = !isPaused;
         simulation.SetPaused(isPaused);
+        UpdatePlayPauseButton();
+    }
+    
+    private void UpdatePlayPauseButton()
+    {
         playPauseButton.Text = isPaused ? "▶" : "⏸";
         playPauseButton.TooltipText = isPaused ? "Resume simulation" : "Pause simulation";
     }
@@ -139,5 +156,72 @@ public partial class HeaderBar : Panel
                 fpsLabel.AddThemeColorOverride("font_color", new Color(0.9f, 0.4f, 0.4f)); // Red
             }
         }
+    }
+    
+    private void OnScreenshotPressed()
+    {
+        TakeScreenshot();
+    }
+    
+    private void OnGalleryPressed()
+    {
+        OpenGallery();
+    }
+    
+    private void TakeScreenshot()
+    {
+        // Create screenshots directory if it doesn't exist
+        var screenshotsDir = "user://screenshots/";
+        if (!DirAccess.DirExistsAbsolute(screenshotsDir))
+        {
+            DirAccess.MakeDirRecursiveAbsolute(screenshotsDir);
+        }
+        
+        // Generate filename with timestamp
+        var timestamp = System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+        var filename = $"lenia_screenshot_{timestamp}.png";
+        var filepath = screenshotsDir + filename;
+        
+        // Capture the viewport
+        var viewport = GetViewport();
+        var image = viewport.GetTexture().GetImage();
+        
+        // Save the image
+        var error = image.SavePng(filepath);
+        if (error == Error.Ok)
+        {
+            GD.Print($"Screenshot saved to: {filepath}");
+            ShowScreenshotNotification("Screenshot saved!");
+        }
+        else
+        {
+            GD.PrintErr($"Failed to save screenshot: {error}");
+            ShowScreenshotNotification("Screenshot failed!");
+        }
+    }
+    
+    private void OpenGallery()
+    {
+        // Switch to gallery scene
+        GetTree().ChangeSceneToFile("res://gallery.tscn");
+    }
+    
+    private void ShowScreenshotNotification(string message)
+    {
+        // Create a temporary notification label
+        var notification = new Label();
+        notification.Text = message;
+        notification.AddThemeColorOverride("font_color", new Color(0.8f, 1.0f, 0.8f));
+        notification.AddThemeFontSizeOverride("font_size", 14);
+        notification.Position = new Vector2(GetViewport().GetVisibleRect().Size.X - 200, 60);
+        notification.Size = new Vector2(180, 30);
+        notification.HorizontalAlignment = HorizontalAlignment.Center;
+        notification.VerticalAlignment = VerticalAlignment.Center;
+        
+        GetViewport().AddChild(notification);
+        
+        // Remove after 2 seconds
+        var timer = GetTree().CreateTimer(2.0);
+        timer.Timeout += () => notification.QueueFree();
     }
 }
