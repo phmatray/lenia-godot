@@ -336,6 +336,7 @@ public partial class Gallery : Control
         var vbox = new VBoxContainer();
         vbox.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         vbox.AddThemeConstantOverride("separation", 10);
+        vbox.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         container.AddChild(vbox);
         
         // Add margin for better spacing
@@ -344,10 +345,12 @@ public partial class Gallery : Control
         marginContainer.AddThemeConstantOverride("margin_top", 12);
         marginContainer.AddThemeConstantOverride("margin_right", 12);
         marginContainer.AddThemeConstantOverride("margin_bottom", 12);
+        marginContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         vbox.AddChild(marginContainer);
         
         var contentVBox = new VBoxContainer();
         contentVBox.AddThemeConstantOverride("separation", 8);
+        contentVBox.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         marginContainer.AddChild(contentVBox);
         
         // Create image display area
@@ -385,6 +388,7 @@ public partial class Gallery : Control
         metaStyle.SetCornerRadiusAll(4);
         metadataPanel.AddThemeStyleboxOverride("panel", metaStyle);
         metadataPanel.CustomMinimumSize = new Vector2(0, 100);
+        metadataPanel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         contentVBox.AddChild(metadataPanel);
         
         var metaMargin = new MarginContainer();
@@ -392,17 +396,30 @@ public partial class Gallery : Control
         metaMargin.AddThemeConstantOverride("margin_top", 6);
         metaMargin.AddThemeConstantOverride("margin_right", 8);
         metaMargin.AddThemeConstantOverride("margin_bottom", 6);
+        metaMargin.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         metadataPanel.AddChild(metaMargin);
         
         var metaVBox = new VBoxContainer();
         metaVBox.AddThemeConstantOverride("separation", 2);
+        metaVBox.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         metaMargin.AddChild(metaVBox);
         
-        // Add metadata information
-        AddMetadataLine(metaVBox, "📅 " + (metadata?.Timestamp ?? "Unknown"), new Color(0.9f, 0.9f, 1.0f), 11);
-        AddMetadataLine(metaVBox, "🎯 Population: " + (metadata != null ? $"{metadata.PopulationPercent:F1}%" : "N/A"), new Color(0.8f, 1.0f, 0.8f), 10);
-        AddMetadataLine(metaVBox, "📏 Grid: " + (metadata?.GridSize ?? "N/A"), new Color(0.8f, 0.9f, 1.0f), 10);
-        AddMetadataLine(metaVBox, "🎨 " + (metadata?.ColorScheme ?? "N/A"), new Color(1.0f, 0.9f, 0.8f), 10);
+        // Add metadata information - keep text concise to prevent wrapping
+        if (metadata != null)
+        {
+            var timestamp = metadata.Timestamp?.Length > 16 ? metadata.Timestamp.Substring(11, 5) : metadata.Timestamp ?? "Unknown";
+            AddMetadataLine(metaVBox, "📅 " + timestamp, new Color(0.9f, 0.9f, 1.0f), 11);
+            AddMetadataLine(metaVBox, $"🎯 Pop: {metadata.PopulationPercent:F1}%", new Color(0.8f, 1.0f, 0.8f), 10);
+            AddMetadataLine(metaVBox, "📏 " + (metadata.GridSize ?? "N/A"), new Color(0.8f, 0.9f, 1.0f), 10);
+            AddMetadataLine(metaVBox, "🎨 " + (metadata.ColorScheme ?? "N/A"), new Color(1.0f, 0.9f, 0.8f), 10);
+        }
+        else
+        {
+            AddMetadataLine(metaVBox, "📅 Unknown", new Color(0.9f, 0.9f, 1.0f), 11);
+            AddMetadataLine(metaVBox, "🎯 No data", new Color(0.8f, 1.0f, 0.8f), 10);
+            AddMetadataLine(metaVBox, "📏 N/A", new Color(0.8f, 0.9f, 1.0f), 10);
+            AddMetadataLine(metaVBox, "🎨 N/A", new Color(1.0f, 0.9f, 0.8f), 10);
+        }
         
         // Add action buttons
         var buttonContainer = new HBoxContainer();
@@ -467,7 +484,11 @@ public partial class Gallery : Control
         label.Text = text;
         label.AddThemeColorOverride("font_color", color);
         label.AddThemeFontSizeOverride("font_size", fontSize);
-        label.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+        label.AutowrapMode = TextServer.AutowrapMode.Off; // Disable wrapping for metadata labels
+        label.HorizontalAlignment = HorizontalAlignment.Left;
+        label.VerticalAlignment = VerticalAlignment.Center;
+        label.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        label.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis; // Add ellipsis if text is too long
         parent.AddChild(label);
     }
     

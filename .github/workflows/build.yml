@@ -1,0 +1,51 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+    
+    - name: Setup Godot
+      uses: chickensoft-games/setup-godot@v1
+      with:
+        version: 4.4.0
+        use-dotnet: true
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build project
+      run: dotnet build --no-restore --configuration Release
+    
+    - name: Import Godot project
+      run: godot --headless --import
+    
+    - name: Build Godot project
+      run: godot --headless --build-solutions --quit
+      
+    - name: Run basic validation
+      run: |
+        # Check that main scene files exist
+        test -f lenia.tscn
+        test -f gallery.tscn
+        test -f menu.tscn
+        
+        # Check that essential scripts compile
+        test -f Scripts/LeniaSimulation.cs
+        test -f Scripts/Gallery.cs
+        test -f Scripts/HeaderBar.cs
+        
+        echo "✅ Project structure validation passed"
