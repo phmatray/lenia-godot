@@ -38,6 +38,7 @@ window/vsync/vsync_mode=1
 [gui]
 
 common/drop_mouse_on_gui_input_disabled=true
+theme/custom="res://lenia_theme.tres"
 theme/default_font_subpixel_positioning=1
 
 [input]
