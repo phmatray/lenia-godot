@@ -1,0 +1,91 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/HeaderBar.cs" id="1"]
+
+[node name="HeaderBar" type="Panel"]
+custom_minimum_size = Vector2(0, 60)
+script = ExtResource("1")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 15.0
+offset_top = 10.0
+offset_right = -15.0
+offset_bottom = -10.0
+theme_override_constants/separation = 15
+
+[node name="TitleLabel" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+text = "LENIA"
+theme_override_colors/font_color = Color(0.9, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 24
+vertical_alignment = 1
+
+[node name="VSeparator" type="VSeparator" parent="HBoxContainer"]
+layout_mode = 2
+theme_override_colors/separator = Color(0.3, 0.5, 0.8, 0.5)
+
+[node name="PlayPauseButton" type="Button" parent="HBoxContainer"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+text = "▶"
+theme_override_font_sizes/font_size = 16
+tooltip_text = "Play/Pause simulation"
+
+[node name="StepButton" type="Button" parent="HBoxContainer"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+text = "⏭"
+theme_override_font_sizes/font_size = 16
+tooltip_text = "Step one frame"
+
+[node name="ResetButton" type="Button" parent="HBoxContainer"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+text = "🔄"
+theme_override_font_sizes/font_size = 16
+tooltip_text = "Reset simulation"
+
+[node name="VSeparator2" type="VSeparator" parent="HBoxContainer"]
+layout_mode = 2
+theme_override_colors/separator = Color(0.3, 0.5, 0.8, 0.5)
+
+[node name="SpeedContainer" type="HBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SpeedLabel" type="Label" parent="HBoxContainer/SpeedContainer"]
+layout_mode = 2
+text = "Speed:"
+theme_override_colors/font_color = Color(0.8, 0.8, 0.9, 1)
+theme_override_font_sizes/font_size = 14
+vertical_alignment = 1
+
+[node name="SpeedSlider" type="HSlider" parent="HBoxContainer/SpeedContainer"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+max_value = 3.0
+step = 0.1
+value = 1.0
+
+[node name="SpeedValue" type="Label" parent="HBoxContainer/SpeedContainer"]
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+text = "1.0x"
+theme_override_colors/font_color = Color(0.7, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 14
+vertical_alignment = 1
+
+[node name="Spacer" type="Control" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="FPSLabel" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+text = "FPS: 60"
+theme_override_colors/font_color = Color(0.6, 0.8, 0.6, 1)
+theme_override_font_sizes/font_size = 14
+vertical_alignment = 1

@@ -1,0 +1,72 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/StatusBar.cs" id="1"]
+
+[node name="StatusBar" type="Panel"]
+custom_minimum_size = Vector2(0, 30)
+script = ExtResource("1")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 5.0
+offset_right = -10.0
+offset_bottom = -5.0
+theme_override_constants/separation = 20
+
+[node name="FPSLabel" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+text = "FPS: 0"
+theme_override_colors/font_color = Color(0.7, 0.7, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+vertical_alignment = 1
+
+[node name="VSeparator" type="VSeparator" parent="HBoxContainer"]
+layout_mode = 2
+theme_override_colors/separator = Color(0.3, 0.5, 0.8, 0.3)
+
+[node name="CellCountLabel" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+text = "Active Cells: 0"
+theme_override_colors/font_color = Color(0.7, 0.7, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+vertical_alignment = 1
+
+[node name="AvgDensityLabel" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+text = "Avg Density: 0.000"
+theme_override_colors/font_color = Color(0.7, 0.7, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+vertical_alignment = 1
+
+[node name="PeakDensityLabel" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+text = "Peak: 0.000"
+theme_override_colors/font_color = Color(0.7, 0.7, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+vertical_alignment = 1
+
+[node name="VSeparator2" type="VSeparator" parent="HBoxContainer"]
+layout_mode = 2
+theme_override_colors/separator = Color(0.3, 0.5, 0.8, 0.3)
+
+[node name="SimSpeedLabel" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+text = "Speed: 1.0x"
+theme_override_colors/font_color = Color(0.7, 0.7, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+vertical_alignment = 1
+
+[node name="Spacer" type="Control" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MouseCoordsLabel" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+text = "Mouse: (0, 0)"
+theme_override_colors/font_color = Color(0.7, 0.7, 0.8, 1)
+theme_override_font_sizes/font_size = 11
+vertical_alignment = 1

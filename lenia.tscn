@@ -1,14 +1,13 @@
 [gd_scene load_steps=3 format=3 uid="uid://bt3j37susfx8n"]
 
 [ext_resource type="Script" uid="uid://bi0m2u8mvapmt" path="res://Scripts/LeniaSimulation.cs" id="1_4xqjt"]
-[ext_resource type="Script" uid="uid://4cnlbfmntx2n" path="res://Scripts/LeniaUI.cs" id="2_7xqjt"]
+[ext_resource type="PackedScene" uid="uid://dpbrr8dilmhlo" path="res://ui_main.tscn" id="2_ui_scene"]
 
 [node name="Main" type="Node2D"]
 
 [node name="LeniaSimulation" type="Node2D" parent="."]
 script = ExtResource("1_4xqjt")
 
-[node name="LeniaUI" type="Control" parent="."]
-layout_mode = 3
-anchors_preset = 0
-script = ExtResource("2_7xqjt")
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="LeniaMainUI" parent="CanvasLayer" instance=ExtResource("2_ui_scene")]

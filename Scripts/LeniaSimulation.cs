@@ -23,9 +23,6 @@ public partial class LeniaSimulation : Node2D
     private ImageTexture gridTexture;
     private Sprite2D displaySprite;
     private byte[] pixelData;
-    private bool isMousePressed = false;
-    private Vector2 simulationOffset;
-    private Vector2 simulationScale;
     
     public override void _Ready()
     {
@@ -89,26 +86,7 @@ public partial class LeniaSimulation : Node2D
         displaySprite = new Sprite2D();
         displaySprite.Texture = gridTexture;
         displaySprite.Centered = false;
-        AddChild(displaySprite);
-        
-        var viewport = GetViewport();
-        var screenSize = viewport.GetVisibleRect().Size;
-        
-        var panelWidth = 400;
-        var availableWidth = screenSize.X - panelWidth;
-        var availableHeight = screenSize.Y;
-        
-        var scale = Mathf.Min(availableWidth / GridWidth, availableHeight / GridHeight);
-        displaySprite.Scale = new Vector2(scale, scale);
-        
-        // Center the simulation in the available space
-        var centeredX = panelWidth + (availableWidth - GridWidth * scale) / 2;
-        var centeredY = (availableHeight - GridHeight * scale) / 2;
-        displaySprite.Position = new Vector2(centeredX, centeredY);
-        
-        // Store for mouse interaction
-        simulationOffset = displaySprite.Position;
-        simulationScale = displaySprite.Scale;
+        // Don't add as child - SimulationCanvas will handle positioning
     }
     
     public void InitializePattern()
@@ -145,35 +123,9 @@ public partial class LeniaSimulation : Node2D
             UpdateSimulation();
         }
         UpdateDisplay();
-        HandleMouseInput();
     }
     
-    private void HandleMouseInput()
-    {
-        if (Input.IsActionPressed("ui_click") || Input.IsMouseButtonPressed(MouseButton.Left))
-        {
-            var mousePos = GetGlobalMousePosition();
-            PaintAtPosition(mousePos, BrushIntensity);
-        }
-        else if (Input.IsMouseButtonPressed(MouseButton.Right))
-        {
-            var mousePos = GetGlobalMousePosition();
-            PaintAtPosition(mousePos, -BrushIntensity); // Erase
-        }
-    }
-    
-    private void PaintAtPosition(Vector2 screenPos, float intensity)
-    {
-        // Convert screen position to grid coordinates
-        var localPos = screenPos - simulationOffset;
-        var gridX = (int)(localPos.X / simulationScale.X);
-        var gridY = (int)(localPos.Y / simulationScale.Y);
-        
-        // Paint with brush
-        PaintBrush(gridX, gridY, BrushSize, intensity);
-    }
-    
-    private void PaintBrush(int centerX, int centerY, float radius, float intensity)
+    public void PaintBrush(int centerX, int centerY, float radius, float intensity)
     {
         int intRadius = (int)radius;
         for (int dx = -intRadius; dx <= intRadius; dx++)
@@ -310,8 +262,26 @@ public partial class LeniaSimulation : Node2D
         }
     }
     
+    public void StepOneFrame()
+    {
+        UpdateSimulation();
+    }
+    
     public float[,] GetCurrentGrid()
     {
         return currentGrid;
+    }
+    
+    public Sprite2D GetDisplaySprite()
+    {
+        return displaySprite;
+    }
+    
+    public void SetGridValue(int x, int y, float value)
+    {
+        if (x >= 0 && x < GridWidth && y >= 0 && y < GridHeight)
+        {
+            currentGrid[x, y] = Mathf.Clamp(value, 0.0f, 1.0f);
+        }
     }
 }
