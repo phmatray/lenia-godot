@@ -20,58 +20,224 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = -20.0
-offset_bottom = -20.0
-theme_override_constants/separation = 20
 
-[node name="HeaderContainer" type="HBoxContainer" parent="VBoxContainer"]
+[node name="HeaderBar" type="Panel" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
+
+[node name="HeaderContent" type="HBoxContainer" parent="VBoxContainer/HeaderBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 15.0
+offset_top = 10.0
+offset_right = -15.0
+offset_bottom = -10.0
 theme_override_constants/separation = 15
 
-[node name="TitleLabel" type="Label" parent="VBoxContainer/HeaderContainer"]
+[node name="TitleLabel" type="Label" parent="VBoxContainer/HeaderBar/HeaderContent"]
 layout_mode = 2
-size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.9, 0.95, 1, 1)
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 24
 text = "LENIA GALLERY"
 vertical_alignment = 1
 
-[node name="BackButton" type="Button" parent="VBoxContainer/HeaderContainer"]
-custom_minimum_size = Vector2(120, 50)
+[node name="VSeparator" type="VSeparator" parent="VBoxContainer/HeaderBar/HeaderContent"]
 layout_mode = 2
+
+[node name="BackButton" type="Button" parent="VBoxContainer/HeaderBar/HeaderContent"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+tooltip_text = "Back to simulation"
 theme_override_font_sizes/font_size = 16
-text = "← Back"
+text = "←"
 
-[node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
+[node name="VSeparator2" type="VSeparator" parent="VBoxContainer/HeaderBar/HeaderContent"]
 layout_mode = 2
 
-[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer"]
+[node name="StatsContainer" type="HBoxContainer" parent="VBoxContainer/HeaderBar/HeaderContent"]
 layout_mode = 2
-size_flags_vertical = 3
-horizontal_scroll_mode = 0
+theme_override_constants/separation = 8
 
-[node name="ImageGrid" type="GridContainer" parent="VBoxContainer/ScrollContainer"]
+[node name="StatsLabel" type="Label" parent="VBoxContainer/HeaderBar/HeaderContent/StatsContainer"]
 layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/h_separation = 10
-theme_override_constants/v_separation = 10
-columns = 4
-
-[node name="StatusContainer" type="HBoxContainer" parent="VBoxContainer"]
-layout_mode = 2
-
-[node name="StatusLabel" type="Label" parent="VBoxContainer/StatusContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.7, 0.8, 0.9, 1)
+theme_override_colors/font_color = Color(0.8, 0.8, 0.9, 1)
 theme_override_font_sizes/font_size = 14
-text = "Loading gallery..."
+text = "Stats:"
 vertical_alignment = 1
 
-[node name="ClearButton" type="Button" parent="VBoxContainer/StatusContainer"]
-custom_minimum_size = Vector2(100, 35)
+[node name="CountLabel" type="Label" parent="VBoxContainer/HeaderBar/HeaderContent/StatsContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "0 screenshots"
+vertical_alignment = 1
+
+[node name="Spacer" type="Control" parent="VBoxContainer/HeaderBar/HeaderContent"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ActionButtons" type="HBoxContainer" parent="VBoxContainer/HeaderBar/HeaderContent"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ExportButton" type="Button" parent="VBoxContainer/HeaderBar/HeaderContent/ActionButtons"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Export All"
+
+[node name="ClearButton" type="Button" parent="VBoxContainer/HeaderBar/HeaderContent/ActionButtons"]
+custom_minimum_size = Vector2(80, 40)
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "Clear All"
+
+[node name="MiddleSection" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="LeftSidebar" type="Panel" parent="VBoxContainer/MiddleSection"]
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+
+[node name="SidebarMargin" type="MarginContainer" parent="VBoxContainer/MiddleSection/LeftSidebar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="SidebarContent" type="VBoxContainer" parent="VBoxContainer/MiddleSection/LeftSidebar/SidebarMargin"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="FiltersSection" type="VBoxContainer" parent="VBoxContainer/MiddleSection/LeftSidebar/SidebarMargin/SidebarContent"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="FiltersTitle" type="Label" parent="VBoxContainer/MiddleSection/LeftSidebar/SidebarMargin/SidebarContent/FiltersSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 16
+text = "FILTERS & SEARCH"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="VBoxContainer/MiddleSection/LeftSidebar/SidebarMargin/SidebarContent/FiltersSection"]
+layout_mode = 2
+
+[node name="SearchContainer" type="VBoxContainer" parent="VBoxContainer/MiddleSection/LeftSidebar/SidebarMargin/SidebarContent/FiltersSection"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="SearchLabel" type="Label" parent="VBoxContainer/MiddleSection/LeftSidebar/SidebarMargin/SidebarContent/FiltersSection/SearchContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Search:"
+
+[node name="SearchInput" type="LineEdit" parent="VBoxContainer/MiddleSection/LeftSidebar/SidebarMargin/SidebarContent/FiltersSection/SearchContainer"]
+layout_mode = 2
+placeholder_text = "Search by date/time..."
+
+[node name="SortContainer" type="VBoxContainer" parent="VBoxContainer/MiddleSection/LeftSidebar/SidebarMargin/SidebarContent/FiltersSection"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="SortLabel" type="Label" parent="VBoxContainer/MiddleSection/LeftSidebar/SidebarMargin/SidebarContent/FiltersSection/SortContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Sort:"
+
+[node name="SortOption" type="OptionButton" parent="VBoxContainer/MiddleSection/LeftSidebar/SidebarMargin/SidebarContent/FiltersSection/SortContainer"]
+layout_mode = 2
+
+[node name="ViewSection" type="VBoxContainer" parent="VBoxContainer/MiddleSection/LeftSidebar/SidebarMargin/SidebarContent"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ViewTitle" type="Label" parent="VBoxContainer/MiddleSection/LeftSidebar/SidebarMargin/SidebarContent/ViewSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 16
+text = "VIEW OPTIONS"
+horizontal_alignment = 1
+
+[node name="HSeparator2" type="HSeparator" parent="VBoxContainer/MiddleSection/LeftSidebar/SidebarMargin/SidebarContent/ViewSection"]
+layout_mode = 2
+
+[node name="GridContainer" type="VBoxContainer" parent="VBoxContainer/MiddleSection/LeftSidebar/SidebarMargin/SidebarContent/ViewSection"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="GridLabel" type="Label" parent="VBoxContainer/MiddleSection/LeftSidebar/SidebarMargin/SidebarContent/ViewSection/GridContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Grid Size:"
+
+[node name="GridControls" type="HBoxContainer" parent="VBoxContainer/MiddleSection/LeftSidebar/SidebarMargin/SidebarContent/ViewSection/GridContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="GridSizeSlider" type="HSlider" parent="VBoxContainer/MiddleSection/LeftSidebar/SidebarMargin/SidebarContent/ViewSection/GridContainer/GridControls"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 2.0
+max_value = 4.0
+step = 1.0
+value = 3.0
+
+[node name="GridSizeLabel" type="Label" parent="VBoxContainer/MiddleSection/LeftSidebar/SidebarMargin/SidebarContent/ViewSection/GridContainer/GridControls"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.8, 0.9, 1)
+theme_override_font_sizes/font_size = 12
+text = "3"
+horizontal_alignment = 1
+
+[node name="StatusSection" type="VBoxContainer" parent="VBoxContainer/MiddleSection/LeftSidebar/SidebarMargin/SidebarContent"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="StatusTitle" type="Label" parent="VBoxContainer/MiddleSection/LeftSidebar/SidebarMargin/SidebarContent/StatusSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 16
+text = "STATISTICS"
+horizontal_alignment = 1
+
+[node name="HSeparator3" type="HSeparator" parent="VBoxContainer/MiddleSection/LeftSidebar/SidebarMargin/SidebarContent/StatusSection"]
+layout_mode = 2
+
+[node name="StatusLabel" type="Label" parent="VBoxContainer/MiddleSection/LeftSidebar/SidebarMargin/SidebarContent/StatusSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.8, 0.9, 1)
+theme_override_font_sizes/font_size = 14
+text = "Loading gallery..."
+autowrap_mode = 3
+
+[node name="MainContent" type="ScrollContainer" parent="VBoxContainer/MiddleSection"]
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_scroll_mode = 0
+
+[node name="ContentMargin" type="MarginContainer" parent="VBoxContainer/MiddleSection/MainContent"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="ImageGrid" type="GridContainer" parent="VBoxContainer/MiddleSection/MainContent/ContentMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 20
+theme_override_constants/v_separation = 20
+columns = 3

@@ -304,6 +304,17 @@ public partial class LeniaSimulation : Node2D
         return displaySprite;
     }
     
+    public Image GetCanvasScreenshot()
+    {
+        if (gridImage == null) return null;
+        
+        // Create a copy of the current grid image
+        var screenshot = Image.CreateEmpty(GridWidth, GridHeight, false, Image.Format.Rgb8);
+        screenshot.CopyFrom(gridImage);
+        
+        return screenshot;
+    }
+    
     public void SetGridValue(int x, int y, float value)
     {
         if (x >= 0 && x < GridWidth && y >= 0 && y < GridHeight)

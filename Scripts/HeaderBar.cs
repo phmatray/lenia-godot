@@ -181,15 +181,24 @@ public partial class HeaderBar : Panel
         var timestamp = System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
         var filename = $"lenia_screenshot_{timestamp}.png";
         var filepath = screenshotsDir + filename;
+        var metadataPath = screenshotsDir + $"lenia_screenshot_{timestamp}.json";
         
-        // Capture the viewport
-        var viewport = GetViewport();
-        var image = viewport.GetTexture().GetImage();
+        // Get canvas content from simulation
+        var canvasImage = simulation.GetCanvasScreenshot();
+        if (canvasImage == null)
+        {
+            GD.PrintErr("Failed to get canvas screenshot from simulation");
+            ShowScreenshotNotification("Screenshot failed!");
+            return;
+        }
         
-        // Save the image
-        var error = image.SavePng(filepath);
+        // Save the canvas image
+        var error = canvasImage.SavePng(filepath);
         if (error == Error.Ok)
         {
+            // Save metadata
+            SaveScreenshotMetadata(metadataPath);
+            
             GD.Print($"Screenshot saved to: {filepath}");
             ShowScreenshotNotification("Screenshot saved!");
         }
@@ -197,6 +206,46 @@ public partial class HeaderBar : Panel
         {
             GD.PrintErr($"Failed to save screenshot: {error}");
             ShowScreenshotNotification("Screenshot failed!");
+        }
+    }
+    
+    private void SaveScreenshotMetadata(string metadataPath)
+    {
+        var metadata = new Godot.Collections.Dictionary();
+        metadata["timestamp"] = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        metadata["grid_size"] = $"{simulation.GridWidth}x{simulation.GridHeight}";
+        metadata["delta_time"] = simulation.DeltaTime;
+        metadata["kernel_radius"] = simulation.KernelRadius;
+        metadata["growth_mean"] = simulation.GrowthMean;
+        metadata["growth_sigma"] = simulation.GrowthSigma;
+        metadata["simulation_speed"] = simulation.SimulationSpeed;
+        metadata["color_scheme"] = simulation.CurrentColorScheme.ToString();
+        metadata["brush_size"] = simulation.BrushSize;
+        metadata["brush_intensity"] = simulation.BrushIntensity;
+        
+        // Calculate population
+        var grid = simulation.GetCurrentGrid();
+        float totalPopulation = 0;
+        int totalCells = simulation.GridWidth * simulation.GridHeight;
+        
+        for (int x = 0; x < simulation.GridWidth; x++)
+        {
+            for (int y = 0; y < simulation.GridHeight; y++)
+            {
+                totalPopulation += grid[x, y];
+            }
+        }
+        
+        var populationPercentage = (totalPopulation / totalCells) * 100;
+        metadata["population_percent"] = populationPercentage;
+        metadata["total_population"] = totalPopulation;
+        
+        var jsonString = Json.Stringify(metadata);
+        var file = FileAccess.Open(metadataPath, FileAccess.ModeFlags.Write);
+        if (file != null)
+        {
+            file.StoreString(jsonString);
+            file.Close();
         }
     }
     
