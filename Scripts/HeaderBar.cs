@@ -79,7 +79,7 @@ public partial class HeaderBar : Panel
     private void OnPlayPausePressed()
     {
         isPaused = !isPaused;
-        simulation.SetProcess(!isPaused);
+        simulation.SetPaused(isPaused);
         playPauseButton.Text = isPaused ? "▶" : "⏸";
         playPauseButton.TooltipText = isPaused ? "Resume simulation" : "Pause simulation";
     }

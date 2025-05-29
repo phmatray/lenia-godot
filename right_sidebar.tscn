@@ -1,103 +1,120 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3 uid="uid://cokwlquujhr7i"]
 
-[ext_resource type="Script" path="res://Scripts/RightSidebar.cs" id="1"]
+[ext_resource type="Script" uid="uid://b0at12s5nqtu7" path="res://Scripts/RightSidebar.cs" id="1"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sidebar"]
+bg_color = Color(0.08, 0.1, 0.15, 0.95)
+border_width_left = 2
+border_color = Color(0.2, 0.4, 0.8, 0.3)
 
 [node name="RightSidebar" type="Panel"]
 custom_minimum_size = Vector2(280, 0)
-layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_sidebar")
 script = ExtResource("1")
 
-[node name="ScrollContainer" type="ScrollContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 10.0
-offset_top = 10.0
-offset_right = -10.0
-offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer"]
+layout_mode = 2
 horizontal_scroll_mode = 0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer"]
-custom_minimum_size = Vector2(260, 0)
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/ScrollContainer"]
 layout_mode = 2
-theme_override_constants/separation = 15
+size_flags_horizontal = 3
+theme_override_constants/separation = 16
 
-[node name="ParametersSection" type="VBoxContainer" parent="ScrollContainer/VBoxContainer"]
+[node name="TitleLabel" type="Label" parent="MarginContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
-theme_override_constants/separation = 5
+theme_override_colors/font_color = Color(0.9, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 16
+text = "CONTROLS"
+horizontal_alignment = 1
 
-[node name="Header" type="Button" parent="ScrollContainer/VBoxContainer/ParametersSection"]
-custom_minimum_size = Vector2(0, 30)
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
-text = "▼ PARAMETERS"
-theme_override_font_sizes/font_size = 14
-alignment = 0
 
-[node name="Content" type="VBoxContainer" parent="ScrollContainer/VBoxContainer/ParametersSection"]
+[node name="ParametersSection" type="VBoxContainer" parent="MarginContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="VisualsSection" type="VBoxContainer" parent="ScrollContainer/VBoxContainer"]
+[node name="Header" type="Button" parent="MarginContainer/ScrollContainer/VBoxContainer/ParametersSection"]
 layout_mode = 2
-theme_override_constants/separation = 5
-
-[node name="Header" type="Button" parent="ScrollContainer/VBoxContainer/VisualsSection"]
-custom_minimum_size = Vector2(0, 30)
-layout_mode = 2
-text = "▼ VISUALS"
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 13
+text = "▼ SIMULATION PARAMETERS"
+flat = true
 alignment = 0
 
-[node name="Content" type="VBoxContainer" parent="ScrollContainer/VBoxContainer/VisualsSection"]
+[node name="Content" type="VBoxContainer" parent="MarginContainer/ScrollContainer/VBoxContainer/ParametersSection"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="VisualsSection" type="VBoxContainer" parent="MarginContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="PatternsSection" type="VBoxContainer" parent="ScrollContainer/VBoxContainer"]
+[node name="Header" type="Button" parent="MarginContainer/ScrollContainer/VBoxContainer/VisualsSection"]
 layout_mode = 2
-theme_override_constants/separation = 5
+theme_override_font_sizes/font_size = 13
+text = "▼ VISUAL SETTINGS"
+flat = true
+alignment = 0
 
-[node name="Header" type="Button" parent="ScrollContainer/VBoxContainer/PatternsSection"]
-custom_minimum_size = Vector2(0, 30)
+[node name="Content" type="VBoxContainer" parent="MarginContainer/ScrollContainer/VBoxContainer/VisualsSection"]
 layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="InteractionSection" type="VBoxContainer" parent="MarginContainer/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Header" type="Button" parent="MarginContainer/ScrollContainer/VBoxContainer/InteractionSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "▼ INTERACTION"
+flat = true
+alignment = 0
+
+[node name="Content" type="VBoxContainer" parent="MarginContainer/ScrollContainer/VBoxContainer/InteractionSection"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="PatternsSection" type="VBoxContainer" parent="MarginContainer/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Header" type="Button" parent="MarginContainer/ScrollContainer/VBoxContainer/PatternsSection"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
 text = "▶ PATTERNS"
-theme_override_font_sizes/font_size = 14
+flat = true
 alignment = 0
 
-[node name="Content" type="VBoxContainer" parent="ScrollContainer/VBoxContainer/PatternsSection"]
+[node name="Content" type="VBoxContainer" parent="MarginContainer/ScrollContainer/VBoxContainer/PatternsSection"]
 visible = false
 layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="StatisticsSection" type="VBoxContainer" parent="MarginContainer/ScrollContainer/VBoxContainer"]
+layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="ResetButton" type="Button" parent="ScrollContainer/VBoxContainer/PatternsSection/Content"]
-custom_minimum_size = Vector2(0, 32)
+[node name="Header" type="Button" parent="MarginContainer/ScrollContainer/VBoxContainer/StatisticsSection"]
 layout_mode = 2
-text = "Reset Pattern"
-theme_override_font_sizes/font_size = 12
-
-[node name="RandomButton" type="Button" parent="ScrollContainer/VBoxContainer/PatternsSection/Content"]
-custom_minimum_size = Vector2(0, 32)
-layout_mode = 2
-text = "Random Pattern"
-theme_override_font_sizes/font_size = 12
-
-[node name="OrbiumButton" type="Button" parent="ScrollContainer/VBoxContainer/PatternsSection/Content"]
-custom_minimum_size = Vector2(0, 32)
-layout_mode = 2
-text = "Orbium Pattern"
-theme_override_font_sizes/font_size = 12
-
-[node name="StatisticsSection" type="VBoxContainer" parent="ScrollContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 5
-
-[node name="Header" type="Button" parent="ScrollContainer/VBoxContainer/StatisticsSection"]
-custom_minimum_size = Vector2(0, 30)
-layout_mode = 2
+theme_override_font_sizes/font_size = 13
 text = "▼ STATISTICS"
-theme_override_font_sizes/font_size = 14
+flat = true
 alignment = 0
 
-[node name="Content" type="VBoxContainer" parent="ScrollContainer/VBoxContainer/StatisticsSection"]
+[node name="Content" type="VBoxContainer" parent="MarginContainer/ScrollContainer/VBoxContainer/StatisticsSection"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 12

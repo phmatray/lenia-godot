@@ -7,6 +7,7 @@ public partial class SimulationCanvas : Control
     private Sprite2D displaySprite;
     private bool isMouseDown = false;
     private Vector2 lastMousePosition;
+    private ToolOverlay toolOverlay;
     
     public SimulationCanvas()
     {
@@ -23,6 +24,16 @@ public partial class SimulationCanvas : Control
             if (displaySprite != null)
             {
                 AddChild(displaySprite);
+                
+                // Create tool overlay that renders on top
+                toolOverlay = new ToolOverlay();
+                toolOverlay.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+                toolOverlay.Initialize(simulation, displaySprite);
+                AddChild(toolOverlay);
+                
+                // Connect to grid resize signal
+                simulation.GridResized += OnGridResized;
+                
                 // Defer the display update to ensure the layout is settled
                 CallDeferred(nameof(UpdateSimulationDisplay));
             }
@@ -51,6 +62,10 @@ public partial class SimulationCanvas : Control
     public void SetCurrentTool(LeftToolbar.Tool tool)
     {
         currentTool = tool;
+        if (toolOverlay != null)
+        {
+            toolOverlay.SetTool(tool);
+        }
         
         switch (tool)
         {
@@ -248,36 +263,33 @@ public partial class SimulationCanvas : Control
         }
     }
     
-    public override void _Draw()
+    private void OnGridResized(int width, int height)
     {
-        if (currentTool == LeftToolbar.Tool.Paint || currentTool == LeftToolbar.Tool.Erase)
+        // Get new display sprite after resize
+        if (simulation != null)
         {
-            var mousePos = GetLocalMousePosition();
-            var gridPos = ScreenToGrid(mousePos);
-            
-            if (gridPos.HasValue && displaySprite != null)
+            // Remove old sprite
+            if (displaySprite != null)
             {
-                var brushScreenRadius = simulation.BrushSize * displaySprite.Scale.X;
-                var brushCenter = new Vector2(
-                    gridPos.Value.X * displaySprite.Scale.X + displaySprite.Position.X,
-                    gridPos.Value.Y * displaySprite.Scale.Y + displaySprite.Position.Y
-                );
-                
-                var color = currentTool == LeftToolbar.Tool.Paint ? 
-                    new Color(0.3f, 0.8f, 0.3f, 0.3f) : 
-                    new Color(0.8f, 0.3f, 0.3f, 0.3f);
-                    
-                DrawCircle(brushCenter, brushScreenRadius, color);
-                DrawArc(brushCenter, brushScreenRadius, 0, Mathf.Tau, 32, color * 2, 2.0f);
+                displaySprite.QueueFree();
             }
-        }
-    }
-    
-    public override void _Process(double delta)
-    {
-        if (currentTool == LeftToolbar.Tool.Paint || currentTool == LeftToolbar.Tool.Erase)
-        {
-            QueueRedraw();
+            
+            // Get new sprite with updated texture
+            displaySprite = simulation.GetDisplaySprite();
+            if (displaySprite != null)
+            {
+                AddChild(displaySprite);
+                MoveChild(displaySprite, 0); // Ensure it's behind the overlay
+                
+                // Update overlay with new sprite
+                if (toolOverlay != null)
+                {
+                    toolOverlay.Initialize(simulation, displaySprite);
+                }
+                
+                // Update display
+                CallDeferred(nameof(UpdateSimulationDisplay));
+            }
         }
     }
 }

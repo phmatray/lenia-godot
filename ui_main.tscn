@@ -1,8 +1,8 @@
 [gd_scene load_steps=7 format=3 uid="uid://cleb11n8qaxmh"]
 
 [ext_resource type="Script" uid="uid://jdm34tnlbvgw" path="res://Scripts/LeniaMainUI.cs" id="1"]
-[ext_resource type="PackedScene" path="res://header_bar.tscn" id="2"]
-[ext_resource type="PackedScene" path="res://left_toolbar.tscn" id="3"]
+[ext_resource type="PackedScene" uid="uid://dr03ocbhhl2va" path="res://header_bar.tscn" id="2"]
+[ext_resource type="PackedScene" uid="uid://be6h7qtye7neq" path="res://left_toolbar.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://simulation_canvas.tscn" id="4"]
 [ext_resource type="PackedScene" uid="uid://cokwlquujhr7i" path="res://right_sidebar.tscn" id="5"]
 [ext_resource type="PackedScene" path="res://status_bar.tscn" id="6"]

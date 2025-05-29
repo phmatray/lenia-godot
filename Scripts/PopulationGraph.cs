@@ -11,12 +11,13 @@ public partial class PopulationGraph : Control
     
     public override void _Ready()
     {
-        CustomMinimumSize = new Vector2(340, 90);
+        CustomMinimumSize = new Vector2(0, 90);
+        SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         
         populationLabel = new Label();
         populationLabel.Text = "Population: 0.0%";
         populationLabel.AddThemeColorOverride("font_color", new Color(0.8f, 0.8f, 0.9f));
-        populationLabel.AddThemeFontSizeOverride("font_size", 14);
+        populationLabel.AddThemeFontSizeOverride("font_size", 12);
         populationLabel.Position = new Vector2(10, 5);
         AddChild(populationLabel);
     }

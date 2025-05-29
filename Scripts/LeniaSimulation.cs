@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 
 public partial class LeniaSimulation : Node2D
 {
+    [Signal]
+    public delegate void GridResizedEventHandler(int width, int height);
+    
     [Export] public int GridWidth = 128;
     [Export] public int GridHeight = 128;
     [Export] public float DeltaTime = 0.1f;
@@ -14,6 +17,7 @@ public partial class LeniaSimulation : Node2D
     [Export] public float BrushSize = 3.0f;
     [Export] public float BrushIntensity = 1.0f;
     [Export] public float SimulationSpeed = 1.0f;
+    [Export] public bool IsPaused = false;
     
     private float[,] currentGrid;
     private float[,] nextGrid;
@@ -118,11 +122,34 @@ public partial class LeniaSimulation : Node2D
     public override void _Process(double delta)
     {
         // Apply simulation speed multiplier
-        if (SimulationSpeed > 0)
+        if (!IsPaused && SimulationSpeed > 0)
         {
             UpdateSimulation();
         }
         UpdateDisplay();
+    }
+    
+    public void SetPaused(bool paused)
+    {
+        IsPaused = paused;
+    }
+    
+    public void ResizeGrid(int newWidth, int newHeight)
+    {
+        if (newWidth == GridWidth && newHeight == GridHeight)
+            return;
+            
+        GridWidth = newWidth;
+        GridHeight = newHeight;
+        
+        // Reinitialize grids with new size
+        InitializeGrids();
+        CreateKernel();
+        SetupDisplay();
+        InitializePattern();
+        
+        // Notify any listening components about the resize
+        EmitSignal(SignalName.GridResized, newWidth, newHeight);
     }
     
     public void PaintBrush(int centerX, int centerY, float radius, float intensity)
