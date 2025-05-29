@@ -38,12 +38,11 @@ public partial class SimulationCanvas : Control
         MouseFilter = MouseFilterEnum.Pass;
         
         var canvasStyle = new StyleBoxFlat();
-        canvasStyle.BgColor = new Color(0.05f, 0.05f, 0.08f);
-        canvasStyle.BorderWidthTop = 2;
-        canvasStyle.BorderWidthBottom = 2;
-        canvasStyle.BorderWidthLeft = 2;
-        canvasStyle.BorderWidthRight = 2;
-        canvasStyle.BorderColor = new Color(0.2f, 0.3f, 0.5f, 0.5f);
+        canvasStyle.BgColor = new Color(0.02f, 0.02f, 0.03f);
+        canvasStyle.SetBorderWidthAll(1);
+        canvasStyle.BorderColor = new Color(0.2f, 0.3f, 0.5f, 0.3f);
+        canvasStyle.SetCornerRadiusAll(4);
+        canvasStyle.SetContentMarginAll(5);
         AddThemeStyleboxOverride("panel", canvasStyle);
         
         ClipContents = true;
@@ -228,16 +227,17 @@ public partial class SimulationCanvas : Control
         var availableSize = Size;
         if (availableSize.X <= 0 || availableSize.Y <= 0) return;
         
-        GD.Print($"SimulationCanvas UpdateDisplay - Size: {availableSize}");
+        // Add padding to prevent the simulation from touching the edges
+        var padding = 10.0f;
+        var effectiveWidth = availableSize.X - (padding * 2);
+        var effectiveHeight = availableSize.Y - (padding * 2);
         
-        var scale = Mathf.Min(availableSize.X / simulation.GridWidth, availableSize.Y / simulation.GridHeight);
+        var scale = Mathf.Min(effectiveWidth / simulation.GridWidth, effectiveHeight / simulation.GridHeight);
         displaySprite.Scale = new Vector2(scale, scale);
         
-        var centeredX = (availableSize.X - simulation.GridWidth * scale) / 2;
-        var centeredY = (availableSize.Y - simulation.GridHeight * scale) / 2;
+        var centeredX = padding + (effectiveWidth - simulation.GridWidth * scale) / 2;
+        var centeredY = padding + (effectiveHeight - simulation.GridHeight * scale) / 2;
         displaySprite.Position = new Vector2(centeredX, centeredY);
-        
-        GD.Print($"Sprite positioned at {displaySprite.Position} with scale {displaySprite.Scale}");
     }
     
     public override void _Notification(int what)

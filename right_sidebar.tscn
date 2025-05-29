@@ -3,6 +3,6 @@
 [ext_resource type="Script" path="res://Scripts/RightSidebar.cs" id="1"]
 
 [node name="RightSidebar" type="Panel"]
-custom_minimum_size = Vector2(300, 0)
+custom_minimum_size = Vector2(280, 0)
 layout_mode = 2
 script = ExtResource("1")

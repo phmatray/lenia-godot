@@ -3,6 +3,6 @@
 [ext_resource type="Script" path="res://Scripts/LeftToolbar.cs" id="1"]
 
 [node name="LeftToolbar" type="Panel"]
-custom_minimum_size = Vector2(80, 0)
+custom_minimum_size = Vector2(70, 0)
 layout_mode = 2
 script = ExtResource("1")
