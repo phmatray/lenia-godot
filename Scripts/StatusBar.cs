@@ -125,4 +125,21 @@ public partial class StatusBar : Panel
             }
         }
     }
+    
+    public void UpdateStatus(string message)
+    {
+        // Create a temporary status message that fades after a few seconds
+        var statusLabel = new Label();
+        statusLabel.Text = message;
+        statusLabel.AddThemeColorOverride("font_color", new Color(0.8f, 1.0f, 0.8f));
+        statusLabel.AddThemeFontSizeOverride("font_size", 12);
+        
+        // Add to the status bar container
+        var container = GetNode<HBoxContainer>("HBoxContainer");
+        container.AddChild(statusLabel);
+        
+        // Remove after 3 seconds
+        var timer = GetTree().CreateTimer(3.0);
+        timer.Timeout += () => statusLabel.QueueFree();
+    }
 }

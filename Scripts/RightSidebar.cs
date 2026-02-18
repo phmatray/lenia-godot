@@ -10,6 +10,7 @@ public partial class RightSidebar : Panel
     private VBoxContainer visualsContent;
     private VBoxContainer interactionContent;
     private VBoxContainer patternsContent;
+    private VBoxContainer funFeaturesContent;
     private VBoxContainer statisticsContent;
     
     // Section headers
@@ -17,6 +18,7 @@ public partial class RightSidebar : Panel
     private Button visualsHeader;
     private Button interactionHeader;
     private Button patternsHeader;
+    private Button funFeaturesHeader;
     private Button statisticsHeader;
     
     public RightSidebar()
@@ -71,6 +73,7 @@ public partial class RightSidebar : Panel
         CreateVisualSettings();
         CreateInteractionSettings();
         CreatePatternsSection();
+        CreateFunFeaturesSection();
         CreateStatistics();
     }
     
@@ -639,5 +642,202 @@ public partial class RightSidebar : Panel
             mini[i, 15 - i] = 0.3f;
         }
         return mini;
+    }
+    
+    private void CreateFunFeaturesSection()
+    {
+        // Since this section doesn't exist in the scene, create it programmatically
+        var mainContainer = GetNode<VBoxContainer>("MarginContainer/ScrollContainer/VBoxContainer");
+        
+        // Create the section container
+        var sectionContainer = new VBoxContainer();
+        sectionContainer.Name = "FunFeaturesSection";
+        
+        // Create header
+        funFeaturesHeader = new Button();
+        funFeaturesHeader.Text = "▼ Fun Features";
+        funFeaturesHeader.Flat = true;
+        funFeaturesHeader.Alignment = HorizontalAlignment.Left;
+        StyleSectionHeader(funFeaturesHeader);
+        sectionContainer.AddChild(funFeaturesHeader);
+        
+        // Create content
+        funFeaturesContent = new VBoxContainer();
+        funFeaturesContent.AddThemeConstantOverride("separation", 8);
+        sectionContainer.AddChild(funFeaturesContent);
+        
+        // Connect header toggle
+        funFeaturesHeader.Pressed += () => ToggleSection(funFeaturesHeader, funFeaturesContent);
+        
+        // Insert before statistics section
+        var statisticsIndex = mainContainer.GetChildCount() - 1; // Assuming statistics is last
+        mainContainer.AddChild(sectionContainer);
+        mainContainer.MoveChild(sectionContainer, statisticsIndex);
+        
+        // Add fun features controls
+        CreateAudioControls();
+        CreateParticleControls();
+        CreateRecordingControls();
+        CreateQuickAccessButtons();
+    }
+    
+    private void CreateAudioControls()
+    {
+        var audioPanel = new Panel();
+        var audioStyle = new StyleBoxFlat();
+        audioStyle.BgColor = new Color(0.12f, 0.15f, 0.22f, 0.6f);
+        audioStyle.SetBorderWidthAll(1);
+        audioStyle.BorderColor = new Color(0.2f, 0.3f, 0.4f, 0.3f);
+        audioStyle.SetCornerRadiusAll(4);
+        audioPanel.AddThemeStyleboxOverride("panel", audioStyle);
+        audioPanel.CustomMinimumSize = new Vector2(0, 80);
+        
+        var audioContainer = new VBoxContainer();
+        audioContainer.AddThemeConstantOverride("separation", 8);
+        audioPanel.AddChild(audioContainer);
+        
+        var audioLabel = new Label();
+        audioLabel.Text = "🔊 Audio Settings";
+        audioLabel.AddThemeColorOverride("font_color", new Color(0.85f, 0.85f, 0.95f));
+        audioLabel.AddThemeFontSizeOverride("font_size", 12);
+        audioContainer.AddChild(audioLabel);
+        
+        CreateParameterControl(audioContainer, "Audio Volume", 0.0f, 1.0f, 0.5f, 0.5f,
+            value => GetMainUI()?.SetAudioVolume(value),
+            "Master volume for audio feedback");
+        
+        funFeaturesContent.AddChild(audioPanel);
+    }
+    
+    private void CreateParticleControls()
+    {
+        var particlePanel = new Panel();
+        var particleStyle = new StyleBoxFlat();
+        particleStyle.BgColor = new Color(0.12f, 0.15f, 0.22f, 0.6f);
+        particleStyle.SetBorderWidthAll(1);
+        particleStyle.BorderColor = new Color(0.2f, 0.3f, 0.4f, 0.3f);
+        particleStyle.SetCornerRadiusAll(4);
+        particlePanel.AddThemeStyleboxOverride("panel", particleStyle);
+        particlePanel.CustomMinimumSize = new Vector2(0, 80);
+        
+        var particleContainer = new VBoxContainer();
+        particleContainer.AddThemeConstantOverride("separation", 8);
+        particlePanel.AddChild(particleContainer);
+        
+        var particleLabel = new Label();
+        particleLabel.Text = "✨ Particle Effects";
+        particleLabel.AddThemeColorOverride("font_color", new Color(0.85f, 0.85f, 0.95f));
+        particleLabel.AddThemeFontSizeOverride("font_size", 12);
+        particleContainer.AddChild(particleLabel);
+        
+        CreateParameterControl(particleContainer, "Particle Intensity", 0.0f, 2.0f, 0.7f, 0.7f,
+            value => GetMainUI()?.SetParticleIntensity(value),
+            "Number and brightness of particles");
+        
+        funFeaturesContent.AddChild(particlePanel);
+    }
+    
+    private void CreateRecordingControls()
+    {
+        var recordPanel = new Panel();
+        var recordStyle = new StyleBoxFlat();
+        recordStyle.BgColor = new Color(0.12f, 0.15f, 0.22f, 0.6f);
+        recordStyle.SetBorderWidthAll(1);
+        recordStyle.BorderColor = new Color(0.2f, 0.3f, 0.4f, 0.3f);
+        recordStyle.SetCornerRadiusAll(4);
+        recordPanel.AddThemeStyleboxOverride("panel", recordStyle);
+        recordPanel.CustomMinimumSize = new Vector2(0, 60);
+        
+        var recordContainer = new VBoxContainer();
+        recordContainer.AddThemeConstantOverride("separation", 8);
+        recordPanel.AddChild(recordContainer);
+        
+        var recordLabel = new Label();
+        recordLabel.Text = "🎬 Time-lapse Recording";
+        recordLabel.AddThemeColorOverride("font_color", new Color(0.85f, 0.85f, 0.95f));
+        recordLabel.AddThemeFontSizeOverride("font_size", 12);
+        recordContainer.AddChild(recordLabel);
+        
+        var infoLabel = new Label();
+        infoLabel.Text = "Use the record button in the header bar to start/stop recording.";
+        infoLabel.AddThemeColorOverride("font_color", new Color(0.7f, 0.8f, 0.9f));
+        infoLabel.AddThemeFontSizeOverride("font_size", 10);
+        infoLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+        recordContainer.AddChild(infoLabel);
+        
+        funFeaturesContent.AddChild(recordPanel);
+    }
+    
+    private void CreateQuickAccessButtons()
+    {
+        var buttonPanel = new Panel();
+        var buttonStyle = new StyleBoxFlat();
+        buttonStyle.BgColor = new Color(0.12f, 0.15f, 0.22f, 0.6f);
+        buttonStyle.SetBorderWidthAll(1);
+        buttonStyle.BorderColor = new Color(0.2f, 0.3f, 0.4f, 0.3f);
+        buttonStyle.SetCornerRadiusAll(4);
+        buttonPanel.AddThemeStyleboxOverride("panel", buttonStyle);
+        buttonPanel.CustomMinimumSize = new Vector2(0, 120);
+        
+        var buttonContainer = new VBoxContainer();
+        buttonContainer.AddThemeConstantOverride("separation", 8);
+        buttonPanel.AddChild(buttonContainer);
+        
+        var buttonLabel = new Label();
+        buttonLabel.Text = "🚀 Quick Access";
+        buttonLabel.AddThemeColorOverride("font_color", new Color(0.85f, 0.85f, 0.95f));
+        buttonLabel.AddThemeFontSizeOverride("font_size", 12);
+        buttonContainer.AddChild(buttonLabel);
+        
+        var buttonGrid = new GridContainer();
+        buttonGrid.Columns = 2;
+        buttonGrid.AddThemeConstantOverride("h_separation", 8);
+        buttonGrid.AddThemeConstantOverride("v_separation", 8);
+        buttonContainer.AddChild(buttonGrid);
+        
+        // Pattern Library button
+        var patternBtn = new Button();
+        patternBtn.Text = "📚 Patterns";
+        patternBtn.AddThemeFontSizeOverride("font_size", 10);
+        patternBtn.Pressed += () => GetMainUI()?.ShowPatternLibrary();
+        buttonGrid.AddChild(patternBtn);
+        
+        // Tutorials button
+        var tutorialBtn = new Button();
+        tutorialBtn.Text = "🎓 Tutorials";
+        tutorialBtn.AddThemeFontSizeOverride("font_size", 10);
+        tutorialBtn.Pressed += () => GetMainUI()?.ShowTutorials();
+        buttonGrid.AddChild(tutorialBtn);
+        
+        // Challenges button
+        var challengeBtn = new Button();
+        challengeBtn.Text = "🏆 Challenges";
+        challengeBtn.AddThemeFontSizeOverride("font_size", 10);
+        challengeBtn.Pressed += () => GetMainUI()?.ShowChallenges();
+        buttonGrid.AddChild(challengeBtn);
+        
+        // Clear button for particles
+        var clearBtn = new Button();
+        clearBtn.Text = "💨 Clear FX";
+        clearBtn.AddThemeFontSizeOverride("font_size", 10);
+        clearBtn.TooltipText = "Clear all particle effects";
+        clearBtn.Pressed += () => {
+            // Clear particles - would need access to particle system
+            GD.Print("Clearing particle effects");
+        };
+        buttonGrid.AddChild(clearBtn);
+        
+        funFeaturesContent.AddChild(buttonPanel);
+    }
+    
+    private LeniaMainUI GetMainUI()
+    {
+        // Navigate up the tree to find the main UI
+        Node current = this;
+        while (current != null && !(current is LeniaMainUI))
+        {
+            current = current.GetParent();
+        }
+        return current as LeniaMainUI;
     }
 }

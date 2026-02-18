@@ -1,0 +1,121 @@
+[gd_scene load_steps=4 format=3 uid="uid://btpn2vux8vwmh"]
+
+[ext_resource type="Script" path="res://Scripts/UI/UIShowcase.cs" id="1_qxcvh"]
+[ext_resource type="Theme" uid="uid://btpn2vux8vwmh" path="res://lenia_theme.tres" id="2_theme"]
+
+[node name="UIShowcase" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource("2_theme")
+script = ExtResource("1_qxcvh")
+
+[node name="Background" type="Panel" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+anchor_left = 0.1
+anchor_top = 0.1
+anchor_right = 0.9
+anchor_bottom = 0.9
+theme_override_constants/separation = 20
+
+[node name="Title" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Modern UI/UX Showcase"
+theme_override_font_sizes/font_size = 32
+horizontal_alignment = 1
+
+[node name="Description" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Experience the modern UI enhancements in Lenia"
+theme_override_colors/font_color = Color(0.7, 0.8, 0.9, 1)
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="ButtonsContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="ShowTooltip" type="Button" parent="VBoxContainer/ButtonsContainer"]
+layout_mode = 2
+text = "Show Rich Tooltip"
+tooltip_text = "This is a modern tooltip with rich content"
+
+[node name="ShowShortcuts" type="Button" parent="VBoxContainer/ButtonsContainer"]
+layout_mode = 2
+text = "Show Shortcuts (F1)"
+
+[node name="StartOnboarding" type="Button" parent="VBoxContainer/ButtonsContainer"]
+layout_mode = 2
+text = "Start Onboarding (F2)"
+
+[node name="AnimationsContainer" type="VBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="AnimLabel" type="Label" parent="VBoxContainer/AnimationsContainer"]
+layout_mode = 2
+text = "Animation Demos"
+theme_override_font_sizes/font_size = 20
+
+[node name="AnimButtons" type="HBoxContainer" parent="VBoxContainer/AnimationsContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="FadeIn" type="Button" parent="VBoxContainer/AnimationsContainer/AnimButtons"]
+layout_mode = 2
+text = "Fade In"
+
+[node name="SlideIn" type="Button" parent="VBoxContainer/AnimationsContainer/AnimButtons"]
+layout_mode = 2
+text = "Slide In"
+
+[node name="Bounce" type="Button" parent="VBoxContainer/AnimationsContainer/AnimButtons"]
+layout_mode = 2
+text = "Bounce"
+
+[node name="Ripple" type="Button" parent="VBoxContainer/AnimationsContainer/AnimButtons"]
+layout_mode = 2
+text = "Ripple Effect"
+
+[node name="ModernButtons" type="VBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ButtonLabel" type="Label" parent="VBoxContainer/ModernButtons"]
+layout_mode = 2
+text = "Modern Button Variants"
+theme_override_font_sizes/font_size = 20
+
+[node name="ButtonGrid" type="GridContainer" parent="VBoxContainer/ModernButtons"]
+layout_mode = 2
+columns = 3
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+
+[node name="AccessibilityContainer" type="VBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="AccessLabel" type="Label" parent="VBoxContainer/AccessibilityContainer"]
+layout_mode = 2
+text = "Accessibility Options"
+theme_override_font_sizes/font_size = 20
+
+[node name="AccessButtons" type="HBoxContainer" parent="VBoxContainer/AccessibilityContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="HighContrast" type="CheckButton" parent="VBoxContainer/AccessibilityContainer/AccessButtons"]
+layout_mode = 2
+text = "High Contrast"
+
+[node name="ReducedMotion" type="CheckButton" parent="VBoxContainer/AccessibilityContainer/AccessButtons"]
+layout_mode = 2
+text = "Reduced Motion"
+
+[node name="LargeText" type="CheckButton" parent="VBoxContainer/AccessibilityContainer/AccessButtons"]
+layout_mode = 2
+text = "Large Text"

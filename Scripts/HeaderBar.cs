@@ -13,6 +13,15 @@ public partial class HeaderBar : Panel
     private Label fpsLabel;
     private bool isPaused = false;
     
+    // New feature buttons
+    private Button patternLibraryButton;
+    private Button tutorialButton;
+    private Button challengeButton;
+    private Button recordButton;
+    private Button audioToggleButton;
+    private Button particleToggleButton;
+    private LeniaMainUI mainUI;
+    
     public HeaderBar()
     {
     }
@@ -20,6 +29,7 @@ public partial class HeaderBar : Panel
     public void Initialize(LeniaSimulation sim)
     {
         simulation = sim;
+        mainUI = GetParent().GetParent() as LeniaMainUI; // Get reference to main UI
         SetupHeaderBar();
     }
     
@@ -48,6 +58,9 @@ public partial class HeaderBar : Panel
         StyleButton(resetButton);
         StyleButton(screenshotButton);
         StyleButton(galleryButton);
+        
+        // Create and add new feature buttons
+        CreateNewFeatureButtons();
     }
     
     private void SetupHeaderBar()
@@ -165,6 +178,7 @@ public partial class HeaderBar : Panel
     
     private void OnGalleryPressed()
     {
+        GD.Print("Gallery button pressed - opening gallery");
         OpenGallery();
     }
     
@@ -251,8 +265,23 @@ public partial class HeaderBar : Panel
     
     private void OpenGallery()
     {
+        GD.Print("OpenGallery called - changing scene to gallery.tscn");
+        
+        // Check if gallery scene exists first
+        if (!FileAccess.FileExists("res://gallery.tscn"))
+        {
+            GD.PrintErr("Gallery scene file does not exist!");
+            return;
+        }
+        
         // Switch to gallery scene
-        GetTree().ChangeSceneToFile("res://gallery.tscn");
+        var result = GetTree().ChangeSceneToFile("res://gallery.tscn");
+        GD.Print($"ChangeSceneToFile result: {result}");
+        
+        if (result != Error.Ok)
+        {
+            GD.PrintErr($"Failed to change scene to gallery: {result}");
+        }
     }
     
     private void ShowScreenshotNotification(string message)
@@ -272,5 +301,125 @@ public partial class HeaderBar : Panel
         // Remove after 2 seconds
         var timer = GetTree().CreateTimer(2.0);
         timer.Timeout += () => notification.QueueFree();
+    }
+    
+    private void CreateNewFeatureButtons()
+    {
+        var container = GetNode<HBoxContainer>("HBoxContainer");
+        
+        // Add separator
+        var separator = new VSeparator();
+        separator.AddThemeStyleboxOverride("separator", new StyleBoxFlat());
+        container.AddChild(separator);
+        
+        // Pattern Library button
+        patternLibraryButton = new Button();
+        patternLibraryButton.Text = "📚";
+        patternLibraryButton.TooltipText = "Pattern Library";
+        patternLibraryButton.CustomMinimumSize = new Vector2(35, 0);
+        patternLibraryButton.Pressed += () => mainUI?.ShowPatternLibrary();
+        StyleButton(patternLibraryButton);
+        container.AddChild(patternLibraryButton);
+        
+        // Tutorial button
+        tutorialButton = new Button();
+        tutorialButton.Text = "🎓";
+        tutorialButton.TooltipText = "Tutorials";
+        tutorialButton.CustomMinimumSize = new Vector2(35, 0);
+        tutorialButton.Pressed += () => mainUI?.ShowTutorials();
+        StyleButton(tutorialButton);
+        container.AddChild(tutorialButton);
+        
+        // Challenge button
+        challengeButton = new Button();
+        challengeButton.Text = "🏆";
+        challengeButton.TooltipText = "Challenges";
+        challengeButton.CustomMinimumSize = new Vector2(35, 0);
+        challengeButton.Pressed += () => mainUI?.ShowChallenges();
+        StyleButton(challengeButton);
+        container.AddChild(challengeButton);
+        
+        // Record button
+        recordButton = new Button();
+        recordButton.Text = "🎬";
+        recordButton.TooltipText = "Start/Stop Time-lapse Recording";
+        recordButton.CustomMinimumSize = new Vector2(35, 0);
+        recordButton.Pressed += OnRecordPressed;
+        StyleButton(recordButton);
+        container.AddChild(recordButton);
+        
+        // Another separator
+        var separator2 = new VSeparator();
+        separator2.AddThemeStyleboxOverride("separator", new StyleBoxFlat());
+        container.AddChild(separator2);
+        
+        // Audio toggle button
+        audioToggleButton = new Button();
+        audioToggleButton.Text = "🔊";
+        audioToggleButton.TooltipText = "Toggle Audio";
+        audioToggleButton.CustomMinimumSize = new Vector2(35, 0);
+        audioToggleButton.ToggleMode = true;
+        audioToggleButton.ButtonPressed = true; // Audio on by default
+        audioToggleButton.Toggled += OnAudioToggled;
+        StyleToggleButton(audioToggleButton);
+        container.AddChild(audioToggleButton);
+        
+        // Particle toggle button
+        particleToggleButton = new Button();
+        particleToggleButton.Text = "✨";
+        particleToggleButton.TooltipText = "Toggle Particle Effects";
+        particleToggleButton.CustomMinimumSize = new Vector2(35, 0);
+        particleToggleButton.ToggleMode = true;
+        particleToggleButton.ButtonPressed = true; // Particles on by default
+        particleToggleButton.Toggled += OnParticleToggled;
+        StyleToggleButton(particleToggleButton);
+        container.AddChild(particleToggleButton);
+    }
+    
+    private void StyleToggleButton(Button button)
+    {
+        StyleButton(button);
+        
+        // Additional styling for toggle state
+        var pressedStyle = new StyleBoxFlat();
+        pressedStyle.BgColor = new Color(0.3f, 0.5f, 0.7f, 0.9f);
+        pressedStyle.SetBorderWidthAll(1);
+        pressedStyle.BorderColor = new Color(0.5f, 0.7f, 1.0f);
+        pressedStyle.SetCornerRadiusAll(6);
+        button.AddThemeStyleboxOverride("pressed", pressedStyle);
+    }
+    
+    private bool isRecording = false;
+    
+    private void OnRecordPressed()
+    {
+        if (isRecording)
+        {
+            mainUI?.StopTimelapseRecording();
+            recordButton.Text = "🎬";
+            recordButton.TooltipText = "Start Time-lapse Recording";
+            isRecording = false;
+        }
+        else
+        {
+            mainUI?.StartTimelapseRecording();
+            recordButton.Text = "⏹";
+            recordButton.TooltipText = "Stop Time-lapse Recording";
+            isRecording = true;
+        }
+    }
+    
+    private void OnAudioToggled(bool enabled)
+    {
+        mainUI?.ToggleAudio(enabled);
+        audioToggleButton.Text = enabled ? "🔊" : "🔇";
+        audioToggleButton.TooltipText = enabled ? "Mute Audio" : "Enable Audio";
+    }
+    
+    private void OnParticleToggled(bool enabled)
+    {
+        mainUI?.ToggleParticles(enabled);
+        particleToggleButton.Text = enabled ? "✨" : "💨";
+        particleToggleButton.TooltipText = enabled ? "Disable Particles" : "Enable Particles";
     }
 }

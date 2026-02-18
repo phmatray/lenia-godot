@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://bt3j37susfx8n"]
 
 [ext_resource type="Script" uid="uid://bi0m2u8mvapmt" path="res://Scripts/LeniaSimulation.cs" id="1_4xqjt"]
-[ext_resource type="PackedScene" uid="uid://dpbrr8dilmhlo" path="res://ui_main.tscn" id="2_ui_scene"]
+[ext_resource type="PackedScene" uid="uid://cleb11n8qaxmh" path="res://ui_main.tscn" id="2_ui_scene"]
 
 [node name="Main" type="Node2D"]
 
