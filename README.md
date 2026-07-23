@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> **This repository has moved.** The code now lives in **[phmatray/godot-games](https://github.com/phmatray/godot-games)** under [`lenia`](https://github.com/phmatray/godot-games/tree/main/lenia) — full git history preserved. This repository is archived (read-only).
+
 ![lenia-godot banner](.github/banner.png)
 
 # Lenia - Continuous Cellular Automaton
